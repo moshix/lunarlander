@@ -47,7 +47,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">100</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.0.0</div> <!-- Developer-given version number -->
+        <div>Version: 1.01</div> <!-- Developer-given version number -->
     </div>
     <div class="legend" id="legend">
         <p><strong>Controls:</strong></p>
@@ -82,6 +82,7 @@ int main() {
         // v 0.8 lateral flying
         // v 0.9 Boss key, pause and restart
         // v 1.0 first half-way usable game
+        // v 1.01 crash detection fix and version update
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -116,7 +117,7 @@ int main() {
         let archesPositions = []; // Store positions and sizes of arches
 
         // Developer-defined version number
-        const versionNumber = "1.0.0";
+        const versionNumber = "1.01";
 
         // Earth position, set once per game start
         let earthPosition = { x: 0, y: 0 };
@@ -267,22 +268,25 @@ int main() {
             const groundY = canvas.height - surfaceHeight;
             if (lander.y > groundY) {
                 lander.y = groundY;
+
+                // Store the metrics at the time of landing
+                const landingVerticalSpeed = lander.vy;
+                const landingHorizontalSpeed = lander.vx;
+                const landingFuelRemaining = fuel;
+
                 if (!landed) {
                     landed = true;
-                    lander.vx = 0;
-                    lander.vy = 0;
-
                     // Check for crash based on vertical and horizontal speeds
-                    if (Math.abs(lander.vy) > 3 || Math.abs(lander.vx) > 2) {
+                    if (Math.abs(landingVerticalSpeed) > 3 || Math.abs(landingHorizontalSpeed) > 2) {
                         message = "You Crashed!";
                     } else {
                         message = "Successful Landing!";
                     }
-                    // Store the metrics at the time of landing
+
                     landingMetrics = `
-                        Horizontal Speed: ${lander.vx.toFixed(2)} m/s\n
-                        Vertical Speed: ${lander.vy.toFixed(2)} m/s\n
-                        Fuel Remaining: ${fuel.toFixed(2)} units
+                        Horizontal Speed: ${landingHorizontalSpeed.toFixed(2)} m/s\n
+                        Vertical Speed: ${landingVerticalSpeed.toFixed(2)} m/s\n
+                        Fuel Remaining: ${landingFuelRemaining.toFixed(2)} units
                     `;
 
                     // Place arches once on successful landing
@@ -290,6 +294,10 @@ int main() {
                         placeArches();
                     }
                 }
+
+                // Stop the lander's movement completely
+                lander.vx = 0;
+                lander.vy = 0;
             }
 
             // Update UI elements with the latest data
