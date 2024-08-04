@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atari-style Lunar Lander Game</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; background: black; }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .boss-screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #2e2e2e;
+            color: white;
+            font-family: monospace;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .legend {
+            position: absolute;
+            top: 10px;
+            right: 300px; /* Moved further left */
+            color: white;
+            font-family: Arial, sans-serif;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui">
+        <div>Horizontal Speed: <span id="horizontal-speed">0</span></div>
+        <div>Vertical Speed: <span id="vertical-speed">0</span></div>
+        <div>Height: <span id="height">0</span></div>
+        <div>Fuel: <span id="fuel">100</span></div>
+        <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
+        <div>Version: 1.0.0</div> <!-- Developer-given version number -->
+    </div>
+    <div class="legend" id="legend">
+        <p><strong>Controls:</strong></p>
+        <p>Arrow Up: Thrust</p>
+        <p>Arrow Left/Right: Rotate</p>
+        <p>P: Pause/Unpause</p>
+        <p>B: Boss Key</p>
+        <p>R: Restart Game</p>
+        <p>by HotDog Studios</p>
+    </div>
+    <div class="boss-screen" id="bossScreen">
+        <pre>#include &lt;stdio.h&gt;
+
+int main() {
+    int i;
+    for (i = 0; i &lt; 10; i++) {
+        printf("This is boring C code.\\n");
+    }
+    return 0;
+}</pre>
+    </div>
+    <script>
+      // Lunar lander for MVS 3.8 and anything else
+      // copyright 2024 by moshix
+      // v 0.1 humble beginnings
+      // v 0.2 add metrics
+      // v 0.3 earth
+      // v 0.4 mcdonalds
+      // v 0.5 crash detection
+      // v 0.6 sound!
+      // v 0.7 plume
+      // v 0.8 lateral flying
+      // v 0.9 Boss key, pause and restart
+      // v 1.0 first half-way usable game
+      
+      // Set up the canvas and drawing context
+        const canvas = document.getElementById('gameCanvas');
+        const context = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Load the lander, plume, earth, and arches images
+        const landerImg = new Image();
+        const plumeImg = new Image();
+        const earthImg = new Image();
+        const archesImg = new Image();
+        landerImg.src = 'lander.svg';
+        plumeImg.src = 'plume.svg';
+        earthImg.src = 'earth.svg';
+        archesImg.src = 'arches.svg';
+
+        // Load the rocket sound
+        const rocketSound = new Audio('rocket.mp3');
+
+        // Define game constants
+        const gravity = 0.05;
+        const thrustPower = -0.15;
+        const fuelConsumptionRate = 0.1;
+        const landerSize = 0.375; // 1.5 times the original size (50% larger)
+        let fuel = 100;
+        let landed = false;
+        let paused = false;
+        let showingBossScreen = false;
+        let message = "";
+        let landingMetrics = "";
+        let archesPositions = []; // Store positions and sizes of arches
+
+        // Developer-defined version number
+        const versionNumber = "1.0.0";
+
+        // Boss screen element
+        const bossScreenElement = document.getElementById('bossScreen');
+        const legendElement = document.getElementById('legend');
+
+        // Initialize the lander object with properties
+        let lander = {
+            x: canvas.width / 2,
+            y: 50,
+            vx: 0,
+            vy: 0,
+            rotation: 0,
+            thrusting: false
+        };
+
+        // Lunar surface properties
+        let lunarSurface = [];
+        const surfaceHeight = 100; // Height of the gray moon area
+
+        // Starfield data
+        const stars = [];
+
+        // Create a simple lunar surface with hills and flat areas
+        function createLunarSurface() {
+            let x = 0;
+            while (x < canvas.width) {
+                const width = Math.random() * 50 + 50;
+                const height = Math.random() * 20 + 10;
+                lunarSurface.push({ x, width, height });
+                x += width;
+            }
+        }
+
+        // Draw the lunar surface on the canvas
+        function drawLunarSurface() {
+            context.fillStyle = 'gray';
+            context.beginPath();
+            context.moveTo(0, canvas.height);
+            lunarSurface.forEach(segment => {
+                context.lineTo(segment.x, canvas.height - surfaceHeight - segment.height);
+                context.lineTo(segment.x + segment.width, canvas.height - surfaceHeight - segment.height);
+            });
+            context.lineTo(canvas.width, canvas.height);
+            context.closePath();
+            context.fill();
+        }
+
+        // Create static stars in the background
+        function createStars() {
+            for (let i = 0; i < 100; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * (canvas.height - surfaceHeight),
+                    radius: Math.random() * 1.5
+                });
+            }
+        }
+
+        // Draw stars in the background
+        function drawStars() {
+            context.fillStyle = 'white';
+            stars.forEach(star => {
+                context.beginPath();
+                context.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                context.fill();
+            });
+        }
+
+        // Draw Earth in a random position above the lunar surface
+        function drawEarth() {
+            const earthWidth = 200; // Double the size of the previous width
+            const earthHeight = 200; // Double the size of the previous height
+            const minX = 350; // Minimum X position to avoid the metrics area
+            const maxX = canvas.width - earthWidth - 100; // Avoid the right edge
+            const minY = 50; // Minimum Y position to avoid the controls area
+            const maxY = canvas.height - surfaceHeight - earthHeight - 50; // Above the lunar surface
+            const x = Math.random() * (maxX - minX) + minX;
+            const y = Math.random() * (maxY - minY) + minY;
+
+            context.drawImage(earthImg, x, y, earthWidth, earthHeight);
+        }
+
+        // Draw the lander and its plume if thrusting
+        function drawLander() {
+            context.save();
+            context.translate(lander.x, lander.y);
+            context.rotate(lander.rotation);
+            context.scale(landerSize, landerSize);
+
+            // Draw the lander image
+            context.drawImage(landerImg, -landerImg.width / 2, -landerImg.height / 2);
+
+            // Draw the plume more to the left under the lander if thrusting
+            if (lander.thrusting && fuel > 0) {
+                const plumeScale = 0.15; // Increased by 50%
+                context.save();
+                context.translate(-30, landerImg.height / 2); // Further to the left
+                context.scale(plumeScale, plumeScale);
+                context.drawImage(plumeImg, -plumeImg.width / 2, 0);
+                context.restore();
+            }
+
+            context.restore();
+        }
+
+        // Draw arches on the lunar surface at random positions and sizes
+        function drawArches() {
+            archesPositions.forEach(({ x, y, width, height }) => {
+                context.drawImage(archesImg, x, y, width, height);
+            });
+        }
+
+        // Place arches on the lunar surface at random positions and sizes
+        function placeArches() {
+            for (let i = 0; i < 3; i++) {
+                const x = Math.random() * (canvas.width - 100) + 50;
+                const y = canvas.height - surfaceHeight - (Math.random() * 50 + 50);
+                const width = Math.random() * 50 + 30;
+                const height = width * 0.6; // Keep a consistent aspect ratio
+                archesPositions.push({ x, y, width, height });
+            }
+        }
+
+        // Update the lander's position and velocity
+        function updateLander() {
+            if (lander.thrusting && fuel > 0) {
+                lander.vy += thrustPower * Math.cos(lander.rotation);
+                lander.vx += thrustPower * Math.sin(lander.rotation);
+                fuel -= fuelConsumptionRate;
+            }
+            lander.vy += gravity;
+            lander.y += lander.vy;
+            lander.x += lander.vx;
+
+            // Ensure the lander stays within canvas bounds
+            if (lander.x < 0) lander.x = 0;
+            if (lander.x > canvas.width) lander.x = canvas.width;
+
+            // Check if the lander has landed on the lunar surface
+            const groundY = canvas.height - surfaceHeight;
+            if (lander.y > groundY) {
+                lander.y = groundY;
+                if (!landed) {
+                    landed = true;
+                    lander.vx = 0;
+                    lander.vy = 0;
+
+                    // Check for crash based on vertical and horizontal speeds
+                    if (Math.abs(lander.vy) > 3 || Math.abs(lander.vx) > 2) {
+                        message = "You Crashed!";
+                    } else {
+                        message = "Successful Landing!";
+                    }
+                    // Store the metrics at the time of landing
+                    landingMetrics = `
+                        Horizontal Speed: ${lander.vx.toFixed(2)} m/s\n
+                        Vertical Speed: ${lander.vy.toFixed(2)} m/s\n
+                        Fuel Remaining: ${fuel.toFixed(2)} units
+                    `;
+
+                    // Place arches once on successful landing
+                    if (message === "Successful Landing!" && archesPositions.length === 0) {
+                        placeArches();
+                    }
+                }
+            }
+
+            // Update UI elements with the latest data
+            document.getElementById('horizontal-speed').textContent = lander.vx.toFixed(2);
+            document.getElementById('vertical-speed').textContent = landed ? '0.00' : lander.vy.toFixed(2);
+            document.getElementById('height').textContent = (groundY - lander.y).toFixed(2);
+            document.getElementById('fuel').textContent = fuel.toFixed(2);
+            document.getElementById('fuel-consumption').textContent = lander.thrusting ? fuelConsumptionRate.toFixed(2) : '0';
+        }
+
+        // Draw the landing result message and metrics
+        function drawMessage() {
+            if (message) {
+                context.fillStyle = 'white';
+                context.font = '30px Arial';
+                context.textAlign = 'center';
+                context.fillText(message, canvas.width / 2, canvas.height / 2);
+
+                context.font = '20px Arial';
+                context.textAlign = 'left';
+                // Split the landing metrics into separate lines
+                const metricsLines = landingMetrics.trim().split('\n');
+                metricsLines.forEach((line, index) => {
+                    context.fillText(line.trim(), canvas.width / 2 - 150, canvas.height / 2 + 40 + index * 30);
+                });
+            }
+
+            // Show "Paused" message if the game is paused
+            if (paused && !showingBossScreen) {
+                context.fillStyle = 'white';
+                context.font = '30px Arial';
+                context.textAlign = 'center';
+                context.fillText("Paused", canvas.width / 2, canvas.height / 2 - 50);
+            }
+        }
+
+        // Draw the descent indicator on the right side
+        function drawDescentIndicator() {
+            const indicatorX = canvas.width - 50;
+            const indicatorTop = 50;
+            const indicatorBottom = canvas.height - 150;
+            const indicatorHeight = indicatorBottom - indicatorTop;
+
+            // Draw the line
+            context.strokeStyle = 'white';
+            context.lineWidth = 2;
+            context.beginPath();
+            context.moveTo(indicatorX, indicatorTop);
+            context.lineTo(indicatorX, indicatorBottom);
+            context.stroke();
+
+            // Draw the red dot representing the lander's position
+            const landerPosition = Math.min(Math.max((lander.y / (canvas.height - surfaceHeight)) * indicatorHeight, 0), indicatorHeight);
+            context.fillStyle = 'red';
+            context.beginPath();
+            context.arc(indicatorX, indicatorTop + landerPosition, 5, 0, Math.PI * 2);
+            context.fill();
+        }
+
+        // Clear the canvas and redraw all elements
+        function draw() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (showingBossScreen) {
+                bossScreenElement.style.display = 'block';
+            } else {
+                bossScreenElement.style.display = 'none';
+                drawStars();
+                drawEarth();
+                drawLunarSurface();
+                drawLander();
+                drawArches(); // Draw arches if they have been placed
+                drawMessage();
+                drawDescentIndicator();
+            }
+        }
+
+        // Main game loop to update and render the game state
+        function gameLoop() {
+            if (!paused && !showingBossScreen) {
+                updateLander();
+            }
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Handle keyboard input for controlling the game
+        document.addEventListener('keydown', (e) => {
+            if (showingBossScreen) {
+                // Allow exiting boss screen
+                if (e.key === 'B' || e.key === 'b') {
+                    showingBossScreen = false;
+                    paused = false;
+                }
+                return;
+            }
+
+            if (!landed && !paused) {
+                switch (e.key) {
+                    case 'ArrowUp':
+                    case 'ArrowLeft':
+                    case 'ArrowRight':
+                        rocketSound.currentTime = 0; // Restart the sound
+                        rocketSound.play();
+                        setTimeout(() => rocketSound.pause(), 300); // Limit sound duration to 0.3 seconds
+                        lander.thrusting = true;
+                        break;
+                }
+            }
+
+            switch (e.key) {
+                case 'P':
+                case 'p':
+                    paused = !paused;
+                    break;
+                case 'R':
+                case 'r':
+                    restartGame();
+                    break;
+                case 'B':
+                case 'b':
+                    showingBossScreen = !showingBossScreen;
+                    paused = showingBossScreen; // Pause the game while showing the boss screen
+                    break;
+            }
+        });
+
+        // Stop thrusting when the up arrow key is released
+        document.addEventListener('keyup', () => {
+            lander.thrusting = false; // Lander stops thrusting when key is released
+        });
+
+        // Restart the game
+        function restartGame() {
+            fuel = 100;
+            landed = false;
+            message = "";
+            landingMetrics = "";
+            paused = false;
+            lander = {
+                x: canvas.width / 2,
+                y: 50,
+                vx: 0,
+                vy: 0,
+                rotation: 0,
+                thrusting: false
+            };
+            lunarSurface = [];
+            createLunarSurface();
+            // Do not reset archesPositions to keep arches on the surface
+        }
+
+        // Initialize the game and start the main loop
+        createStars();
+        createLunarSurface();
+        gameLoop();
+    </script>
+</body>
+</html>
