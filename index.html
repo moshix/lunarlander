@@ -116,6 +116,8 @@ int main() {
         const rocketSound = new Audio('rocket.mp3');
         rocketSound.oncanplaythrough = () => console.log('rocket.mp3 loaded successfully.');
         rocketSound.onerror = () => console.error('Error loading rocket.mp3.');
+        
+        let isRocketSoundPlaying = false; // To track if the sound is currently playing
 
         // Define game constants
         const gravity = 0.05;
@@ -415,11 +417,16 @@ int main() {
                     case 'ArrowUp':
                     case 'ArrowLeft':
                     case 'ArrowRight':
-                        // Play the rocket sound for 0.3 seconds
-                        rocketSound.currentTime = 0; // Restart the sound
-                        rocketSound.play();
-                        clearTimeout(rocketSoundTimeout); // Clear previous timeout
-                        rocketSoundTimeout = setTimeout(() => rocketSound.pause(), 300); // Stop after 0.3 seconds
+                        // Play the rocket sound for 0.3 seconds if not already playing
+                        if (!isRocketSoundPlaying) {
+                            isRocketSoundPlaying = true;
+                            rocketSound.currentTime = 0; // Restart the sound
+                            rocketSound.play();
+                            rocketSoundTimeout = setTimeout(() => {
+                                rocketSound.pause();
+                                isRocketSoundPlaying = false;
+                            }, 300); // Stop after 0.3 seconds
+                        }
 
                         lander.thrusting = true;
                         break;
@@ -443,7 +450,7 @@ int main() {
             }
         });
 
-        // Stop thrusting when the up arrow key is released
+        // Stop thrusting when the arrow key is released
         document.addEventListener('keyup', () => {
             lander.thrusting = false; // Lander stops thrusting when key is released
         });
