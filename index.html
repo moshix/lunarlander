@@ -90,18 +90,32 @@ int main() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // Load the lander, plume, earth, and arches images
+        // Load the lander, plume, earth, and arches images with error handling
         const landerImg = new Image();
         const plumeImg = new Image();
         const earthImg = new Image();
         const archesImg = new Image();
+
+        landerImg.onload = () => console.log('lander.svg loaded successfully.');
+        landerImg.onerror = () => console.error('Error loading lander.svg.');
         landerImg.src = 'lander.svg';
+
+        plumeImg.onload = () => console.log('plume.svg loaded successfully.');
+        plumeImg.onerror = () => console.error('Error loading plume.svg.');
         plumeImg.src = 'plume.svg';
+
+        earthImg.onload = () => console.log('earth.svg loaded successfully.');
+        earthImg.onerror = () => console.error('Error loading earth.svg.');
         earthImg.src = 'earth.svg';
+
+        archesImg.onload = () => console.log('arches.svg loaded successfully.');
+        archesImg.onerror = () => console.error('Error loading arches.svg.');
         archesImg.src = 'arches.svg';
 
-        // Load the rocket sound
+        // Load the rocket sound with error handling
         const rocketSound = new Audio('rocket.mp3');
+        rocketSound.oncanplaythrough = () => console.log('rocket.mp3 loaded successfully.');
+        rocketSound.onerror = () => console.error('Error loading rocket.mp3.');
 
         // Define game constants
         const gravity = 0.05;
@@ -118,7 +132,7 @@ int main() {
         let rocketSoundTimeout;
 
         // Developer-defined version number
-        const versionNumber = "1.02";
+        const versionNumber = "1.01";
 
         // Earth position, set once per game start
         let earthPosition = { x: 0, y: 0 };
