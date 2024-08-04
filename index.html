@@ -115,9 +115,10 @@ int main() {
         let message = "";
         let landingMetrics = "";
         let archesPositions = []; // Store positions and sizes of arches
+        let rocketSoundTimeout;
 
         // Developer-defined version number
-        const versionNumber = "1.01";
+        const versionNumber = "1.02";
 
         // Earth position, set once per game start
         let earthPosition = { x: 0, y: 0 };
@@ -400,9 +401,12 @@ int main() {
                     case 'ArrowUp':
                     case 'ArrowLeft':
                     case 'ArrowRight':
+                        // Play the rocket sound for 0.3 seconds
                         rocketSound.currentTime = 0; // Restart the sound
                         rocketSound.play();
-                        setTimeout(() => rocketSound.pause(), 300); // Limit sound duration to 0.3 seconds
+                        clearTimeout(rocketSoundTimeout); // Clear previous timeout
+                        rocketSoundTimeout = setTimeout(() => rocketSound.pause(), 300); // Stop after 0.3 seconds
+
                         lander.thrusting = true;
                         break;
                 }
