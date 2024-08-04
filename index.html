@@ -129,6 +129,7 @@ int main() {
         // Define game constants
         const gravity = 0.05;
         const thrustPower = -0.15;
+        const lateralThrustPower = 0.1; // Thrust for lateral movement
         const fuelConsumptionRate = 0.1;
         const landerSize = 0.375; // 1.5 times the original size (50% larger)
         let fuel = 100;
@@ -436,6 +437,14 @@ int main() {
                         }
 
                         lander.thrusting = true;
+                        
+                        // Handle lateral movement
+                        if (e.key === 'ArrowLeft') {
+                            lander.vx -= lateralThrustPower;
+                        } else if (e.key === 'ArrowRight') {
+                            lander.vx += lateralThrustPower;
+                        }
+
                         break;
                 }
             }
