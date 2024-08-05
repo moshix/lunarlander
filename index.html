@@ -83,6 +83,12 @@ int main() {
         // v 0.9 Boss key, pause and restart
         // v 1.0 first half-way usable game
         // v 1.01 crash detection fix and version update
+        // v 1.02 fix reporting of landing stats bug
+        // v 1.03 fix various visual bugs
+        // v 1.04 loading of rocket.mp3 on each press! Yikes!
+        // v 1.05 other bugs
+        // v 1.06 report console reporting 
+        // v 1.07 lateral movement is back
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -142,7 +148,7 @@ int main() {
         let rocketSoundTimeout;
 
         // Developer-defined version number
-        const versionNumber = "1.01";
+        const versionNumber = "1.07";
 
         // Earth position, set once per game start
         let earthPosition = { x: 0, y: 0 };
