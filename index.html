@@ -30,7 +30,7 @@
         .legend {
             position: absolute;
             top: 10px;
-            right: 200px; /* Moved further to the right */
+            right: 100px; /* Moved further to the right */
             color: white;
             font-family: Arial, sans-serif;
             background-color: rgba(0, 0, 0, 0.5);
@@ -50,7 +50,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.09</div> <!-- Developer-given version number -->
+        <div>Version: 1.11</div> <!-- Developer-given version number -->
     </div>
     <div class="legend" id="legend">
         <p style="color: red;"><strong>Controls:</strong></p>
@@ -89,6 +89,8 @@ int main() {
         // v 1.01 crash detection fix and version update
         // v 1.0.8 mountain crash zones and double altitude start
         // v 1.09 updated fuel, mountain appearance, and UI enhancements
+        // v 1.10 3D-like lunar surface and further UI adjustments
+        // v 1.11 removed arches, improved 3D surface, fixed sound, less pointy mountains
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -96,11 +98,10 @@ int main() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // Load the lander, plume, earth, and arches images with error handling
+        // Load the lander, plume, and earth images with error handling
         const landerImg = new Image();
         const plumeImg = new Image();
         const earthImg = new Image();
-        const archesImg = new Image();
 
         landerImg.onload = () => console.log('lander.svg loaded successfully.');
         landerImg.onerror = () => console.error('Error loading lander.svg.');
@@ -113,10 +114,6 @@ int main() {
         earthImg.onload = () => console.log('earth.svg loaded successfully.');
         earthImg.onerror = () => console.error('Error loading earth.svg.');
         earthImg.src = 'earth.svg';
-
-        archesImg.onload = () => console.log('arches.svg loaded successfully.');
-        archesImg.onerror = () => console.error('Error loading arches.svg.');
-        archesImg.src = 'arches.svg';
 
         // Load the rocket sound with error handling
         const rocketSound = new Audio('rocket.mp3');
@@ -145,11 +142,10 @@ int main() {
         let showingBossScreen = false;
         let message = "";
         let landingMetrics = "";
-        let archesPositions = []; // Store positions and sizes of arches
         let rocketSoundTimeout;
 
         // Developer-defined version number
-        const versionNumber = "1.09";
+        const versionNumber = "1.11";
 
         // Earth position, set once per game start
         let earthPosition = { x: 0, y: 0 };
@@ -176,14 +172,14 @@ int main() {
         // Starfield data
         const stars = [];
 
-        // Create a simple lunar surface with reduced high mountain peaks and valleys
+        // Create a simple lunar surface with less pointy peaks and valleys
         function createLunarSurface() {
             let x = 0;
             let totalMountainWidth = 0;
 
             while (x < canvas.width) {
                 const width = Math.random() * 50 + 50;
-                const peakHeight = (Math.random() * 400 + 100) / 6; // Peaks are one-sixth of the previous height
+                const peakHeight = (Math.random() * 100 + 50) / 2; // Peaks are less pointy
                 const isMountain = Math.random() < 0.5; // 50% chance for mountains
 
                 if (isMountain) {
@@ -203,19 +199,27 @@ int main() {
             }
         }
 
-        // Draw the lunar surface on the canvas
+        // Draw the lunar surface on the canvas with a 3D effect
         function drawLunarSurface() {
             context.fillStyle = 'gray';
             context.beginPath();
             context.moveTo(0, canvas.height);
 
-            lunarSurface.forEach(segment => {
+            lunarSurface.forEach((segment) => {
                 const peakY = canvas.height - surfaceHeight - segment.peakHeight;
                 const nextPeakX = segment.x + segment.width;
 
                 if (segment.isMountain) {
+                    // Create a 3D effect by adding shading
                     context.lineTo(segment.x, peakY);
                     context.lineTo(nextPeakX, canvas.height - surfaceHeight);
+
+                    // Draw shading for 3D effect
+                    const gradient = context.createLinearGradient(segment.x, peakY, nextPeakX, canvas.height - surfaceHeight);
+                    gradient.addColorStop(0, 'darkgray');
+                    gradient.addColorStop(1, 'lightgray');
+                    context.fillStyle = gradient;
+                    context.fillRect(segment.x, peakY, segment.width, canvas.height - surfaceHeight - peakY);
                 } else {
                     context.lineTo(segment.x, canvas.height - surfaceHeight);
                     context.lineTo(nextPeakX, canvas.height - surfaceHeight);
@@ -233,7 +237,7 @@ int main() {
                 stars.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * (canvas.height - surfaceHeight),
-                    radius: Math.random() * 1.5
+                    radius: Math.random() * 1.5,
                 });
             }
         }
@@ -241,7 +245,7 @@ int main() {
         // Draw stars in the background
         function drawStars() {
             context.fillStyle = 'white';
-            stars.forEach(star => {
+            stars.forEach((star) => {
                 context.beginPath();
                 context.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
                 context.fill();
@@ -288,24 +292,6 @@ int main() {
             }
 
             context.restore();
-        }
-
-        // Draw arches on the lunar surface at random positions and sizes
-        function drawArches() {
-            archesPositions.forEach(({ x, y, width, height }) => {
-                context.drawImage(archesImg, x, y, width, height);
-            });
-        }
-
-        // Place arches on the lunar surface at random positions and sizes
-        function placeArches() {
-            for (let i = 0; i < 3; i++) {
-                const x = Math.random() * (canvas.width - 100) + 50;
-                const y = canvas.height - surfaceHeight - (Math.random() * 50 + 50);
-                const width = Math.random() * 50 + 30;
-                const height = width * 0.6; // Keep a consistent aspect ratio
-                archesPositions.push({ x, y, width, height });
-            }
         }
 
         // Update the lander's position and velocity
@@ -357,11 +343,6 @@ int main() {
                         Vertical Speed: ${landingVerticalSpeed.toFixed(2)} m/s\n
                         Fuel Remaining: ${landingFuelRemaining.toFixed(2)} units
                     `;
-
-                    // Place arches once on successful landing
-                    if (message === "Successful Landing!" && archesPositions.length === 0) {
-                        placeArches();
-                    }
                 }
 
                 // Stop the lander's movement completely
@@ -438,7 +419,6 @@ int main() {
                 drawEarth();
                 drawLunarSurface();
                 drawLander();
-                drawArches(); // Draw arches if they have been placed
                 drawMessage();
                 drawDescentIndicator();
             }
@@ -481,7 +461,7 @@ int main() {
                         }
 
                         lander.thrusting = true;
-                        
+
                         // Handle lateral movement
                         if (e.key === 'ArrowLeft') {
                             lander.vx -= lateralThrustPower;
@@ -534,7 +514,6 @@ int main() {
             mountainZones = [];
             createLunarSurface();
             setEarthPosition(); // Set a new random position for Earth
-            // Do not reset archesPositions to keep arches on the surface
         }
 
         // Initialize the game and start the main loop
