@@ -30,7 +30,7 @@
         .legend {
             position: absolute;
             top: 10px;
-            right: 250px; /* Adjusted for further right */
+            right: 250px;
             color: white;
             font-family: Arial, sans-serif;
             background-color: rgba(0, 0, 0, 0.5);
@@ -47,7 +47,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">100</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.01</div> <!-- Developer-given version number -->
+        <div>Version: 1.0.8</div> <!-- Developer-given version number -->
     </div>
     <div class="legend" id="legend">
         <p><strong>Controls:</strong></p>
@@ -56,6 +56,7 @@
         <p>P: Pause/Unpause</p>
         <p>B: Boss Key</p>
         <p>R: Restart Game</p>
+        <p>No landing on mountains</p> <!-- New note added -->
         <p>by HotDog Studios</p>
     </div>
     <div class="boss-screen" id="bossScreen">
@@ -83,12 +84,7 @@ int main() {
         // v 0.9 Boss key, pause and restart
         // v 1.0 first half-way usable game
         // v 1.01 crash detection fix and version update
-        // v 1.02 fix reporting of landing stats bug
-        // v 1.03 fix various visual bugs
-        // v 1.04 loading of rocket.mp3 on each press! Yikes!
-        // v 1.05 other bugs
-        // v 1.06 report console reporting 
-        // v 1.07 lateral movement is back
+        // v 1.0.8 mountain crash zones and double altitude start
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -148,7 +144,7 @@ int main() {
         let rocketSoundTimeout;
 
         // Developer-defined version number
-        const versionNumber = "1.07";
+        const versionNumber = "1.0.8";
 
         // Earth position, set once per game start
         let earthPosition = { x: 0, y: 0 };
@@ -160,28 +156,45 @@ int main() {
         // Initialize the lander object with properties
         let lander = {
             x: canvas.width / 2,
-            y: 50,
+            y: 400, // Starting at double the previous starting altitude
             vx: 0,
             vy: 0,
             rotation: 0,
             thrusting: false
         };
 
-        // Lunar surface properties
+        // Lunar surface properties, including mountain areas
         let lunarSurface = [];
         const surfaceHeight = 100; // Height of the gray moon area
+        let mountainZones = []; // Store the ranges of mountain zones
 
         // Starfield data
         const stars = [];
 
-        // Create a simple lunar surface with hills and flat areas
+        // Create a simple lunar surface with reduced high mountain peaks and valleys
         function createLunarSurface() {
             let x = 0;
+            let totalMountainWidth = 0;
+
             while (x < canvas.width) {
                 const width = Math.random() * 50 + 50;
-                const height = Math.random() * 20 + 10;
-                lunarSurface.push({ x, width, height });
+                const peakHeight = (Math.random() * 400 + 100) / 6; // Peaks are one-sixth of the previous height
+                const isMountain = Math.random() < 0.5; // 50% chance for mountains
+
+                if (isMountain) {
+                    mountainZones.push({ x, width });
+                    totalMountainWidth += width;
+                }
+
+                lunarSurface.push({ x, width, peakHeight, isMountain });
                 x += width;
+            }
+
+            // Ensure at least 50% of the landscape is mountain
+            if (totalMountainWidth < canvas.width / 2) {
+                mountainZones = [];
+                lunarSurface = [];
+                createLunarSurface();
             }
         }
 
@@ -190,10 +203,20 @@ int main() {
             context.fillStyle = 'gray';
             context.beginPath();
             context.moveTo(0, canvas.height);
+
             lunarSurface.forEach(segment => {
-                context.lineTo(segment.x, canvas.height - surfaceHeight - segment.height);
-                context.lineTo(segment.x + segment.width, canvas.height - surfaceHeight - segment.height);
+                const peakY = canvas.height - surfaceHeight - segment.peakHeight;
+                const nextPeakX = segment.x + segment.width;
+
+                if (segment.isMountain) {
+                    context.lineTo(segment.x, peakY);
+                    context.lineTo(nextPeakX, canvas.height - surfaceHeight);
+                } else {
+                    context.lineTo(segment.x, canvas.height - surfaceHeight);
+                    context.lineTo(nextPeakX, canvas.height - surfaceHeight);
+                }
             });
+
             context.lineTo(canvas.width, canvas.height);
             context.closePath();
             context.fill();
@@ -284,7 +307,7 @@ int main() {
         function updateLander() {
             if (lander.thrusting && fuel > 0) {
                 lander.vy += thrustPower * Math.cos(lander.rotation);
-                lander.vx += thrustPower * Math.sin(lander.rotation);
+                lander.vx += lateralThrustPower * Math.sin(lander.rotation);
                 fuel -= fuelConsumptionRate;
             }
             lander.vy += gravity;
@@ -307,8 +330,18 @@ int main() {
 
                 if (!landed) {
                     landed = true;
-                    // Check for crash based on vertical and horizontal speeds
-                    if (Math.abs(landingVerticalSpeed) > 3 || Math.abs(landingHorizontalSpeed) > 2) {
+
+                    // Determine if the lander is in a mountain zone
+                    let crashedInMountain = false;
+                    for (const zone of mountainZones) {
+                        if (lander.x >= zone.x && lander.x <= zone.x + zone.width) {
+                            crashedInMountain = true;
+                            break;
+                        }
+                    }
+
+                    // Check for crash based on vertical and horizontal speeds or if landed in a mountain zone
+                    if (Math.abs(landingVerticalSpeed) > 3 || Math.abs(landingHorizontalSpeed) > 2 || crashedInMountain) {
                         message = "You Crashed!";
                     } else {
                         message = "Successful Landing!";
@@ -486,13 +519,14 @@ int main() {
             paused = false;
             lander = {
                 x: canvas.width / 2,
-                y: 50,
+                y: 400, // Starting at double the previous altitude
                 vx: 0,
                 vy: 0,
                 rotation: 0,
                 thrusting: false
             };
             lunarSurface = [];
+            mountainZones = [];
             createLunarSurface();
             setEarthPosition(); // Set a new random position for Earth
             // Do not reset archesPositions to keep arches on the surface
