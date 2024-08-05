@@ -30,12 +30,15 @@
         .legend {
             position: absolute;
             top: 10px;
-            right: 250px;
+            right: 200px; /* Moved further to the right */
             color: white;
             font-family: Arial, sans-serif;
             background-color: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 5px;
+        }
+        .legend p {
+            margin: 5px 0;
         }
     </style>
 </head>
@@ -45,19 +48,19 @@
         <div>Horizontal Speed: <span id="horizontal-speed">0</span></div>
         <div>Vertical Speed: <span id="vertical-speed">0</span></div>
         <div>Height: <span id="height">0</span></div>
-        <div>Fuel: <span id="fuel">100</span></div>
+        <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.0.8</div> <!-- Developer-given version number -->
+        <div>Version: 1.09</div> <!-- Developer-given version number -->
     </div>
     <div class="legend" id="legend">
-        <p><strong>Controls:</strong></p>
-        <p>Arrow Up: Thrust</p>
-        <p>Arrow Left/Right: Rotate</p>
-        <p>P: Pause/Unpause</p>
-        <p>B: Boss Key</p>
-        <p>R: Restart Game</p>
-        <p>No landing on mountains</p> <!-- New note added -->
-        <p>by HotDog Studios</p>
+        <p style="color: red;"><strong>Controls:</strong></p>
+        <p style="color: orange;">Arrow Up: Thrust</p>
+        <p style="color: yellow;">Arrow Left/Right: Rotate</p>
+        <p style="color: green;">P: Pause/Unpause</p>
+        <p style="color: blue;">B: Boss Key</p>
+        <p style="color: purple;">R: Restart Game</p>
+        <p style="color: cyan;">No landing on mountains</p> <!-- Note about mountains -->
+        <p style="color: magenta;">by HotDog Studios</p>
     </div>
     <div class="boss-screen" id="bossScreen">
         <pre>#include &lt;stdio.h&gt;
@@ -85,6 +88,7 @@ int main() {
         // v 1.0 first half-way usable game
         // v 1.01 crash detection fix and version update
         // v 1.0.8 mountain crash zones and double altitude start
+        // v 1.09 updated fuel, mountain appearance, and UI enhancements
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -133,8 +137,9 @@ int main() {
         const thrustPower = -0.15;
         const lateralThrustPower = 0.1; // Thrust for lateral movement
         const fuelConsumptionRate = 0.1;
+        const initialFuel = 50; // Developer-defined starting fuel, half the previous amount
         const landerSize = 0.375; // 1.5 times the original size (50% larger)
-        let fuel = 100;
+        let fuel = initialFuel;
         let landed = false;
         let paused = false;
         let showingBossScreen = false;
@@ -144,7 +149,7 @@ int main() {
         let rocketSoundTimeout;
 
         // Developer-defined version number
-        const versionNumber = "1.0.8";
+        const versionNumber = "1.09";
 
         // Earth position, set once per game start
         let earthPosition = { x: 0, y: 0 };
@@ -375,14 +380,14 @@ int main() {
         // Draw the landing result message and metrics
         function drawMessage() {
             if (message) {
-                context.fillStyle = 'white';
+                context.fillStyle = message === "Successful Landing!" ? 'yellow' : 'orange';
                 context.font = '30px Arial';
                 context.textAlign = 'center';
                 context.fillText(message, canvas.width / 2, canvas.height / 2);
 
                 context.font = '20px Arial';
                 context.textAlign = 'left';
-                // Split the landing metrics into separate lines
+                // Split the landing metrics into separate lines and left-align
                 const metricsLines = landingMetrics.trim().split('\n');
                 metricsLines.forEach((line, index) => {
                     context.fillText(line.trim(), canvas.width / 2 - 150, canvas.height / 2 + 40 + index * 30);
@@ -512,7 +517,7 @@ int main() {
 
         // Restart the game
         function restartGame() {
-            fuel = 100;
+            fuel = initialFuel;
             landed = false;
             message = "";
             landingMetrics = "";
