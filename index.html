@@ -166,21 +166,21 @@ int main() {
 
         // Lunar surface properties, including mountain areas
         let lunarSurface = [];
-        const surfaceHeight = 100; // Height of the gray moon area
+        const surfaceHeight = 50; // Height of the gray moon area
         let mountainZones = []; // Store the ranges of mountain zones
 
         // Starfield data
         const stars = [];
 
-        // Create a simple lunar surface with less pointy peaks and valleys
+        // Create a simple lunar surface
         function createLunarSurface() {
             let x = 0;
             let totalMountainWidth = 0;
 
             while (x < canvas.width) {
                 const width = Math.random() * 50 + 50;
-                const peakHeight = (Math.random() * 100 + 50) / 2; // Peaks are less pointy
-                const isMountain = Math.random() < 0.5; // 50% chance for mountains
+                const peakHeight = (Math.random() * 100 + 70) / 2; // Peaks are less pointy
+                const isMountain = Math.random() < 0.6; // 50% chance for mountains
 
                 if (isMountain) {
                     mountainZones.push({ x, width });
@@ -283,7 +283,7 @@ int main() {
 
             // Draw the plume more to the left under the lander if thrusting
             if (lander.thrusting && fuel > 0) {
-                const plumeScale = 0.15; // Increased by 50%
+                const plumeScale = 0.15;
                 context.save();
                 context.translate(-30, landerImg.height / 2); // Further to the left
                 context.scale(plumeScale, plumeScale);
