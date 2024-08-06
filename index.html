@@ -91,6 +91,7 @@ int main() {
         // v 1.09 updated fuel, mountain appearance, and UI enhancements
         // v 1.10 3D-like lunar surface and further UI adjustments
         // v 1.11 removed arches, improved 3D surface, fixed sound, less pointy mountains
+        // v 1.12 fix game physics
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -131,11 +132,11 @@ int main() {
 
         // Define game constants
         const gravity = 0.05;
-        const thrustPower = -0.15;
+        const thrustPower = -0.12; // changed from 0.15
         const lateralThrustPower = 0.1; // Thrust for lateral movement
-        const fuelConsumptionRate = 0.1;
+        const fuelConsumptionRate = 0.3; // changed from 0.1
         const initialFuel = 50; // Developer-defined starting fuel, half the previous amount
-        const landerSize = 0.375; // 1.5 times the original size (50% larger)
+        const landerSize = 0.350; //was 0.375
         let fuel = initialFuel;
         let landed = false;
         let paused = false;
@@ -145,7 +146,7 @@ int main() {
         let rocketSoundTimeout;
 
         // Developer-defined version number
-        const versionNumber = "1.11";
+        const versionNumber = "1.12";
 
         // Earth position, set once per game start
         let earthPosition = { x: 0, y: 0 };
@@ -166,7 +167,7 @@ int main() {
 
         // Lunar surface properties, including mountain areas
         let lunarSurface = [];
-        const surfaceHeight = 50; // Height of the gray moon area
+        const surfaceHeight = 30; // Height of the gray moon area was 100
         let mountainZones = []; // Store the ranges of mountain zones
 
         // Starfield data
@@ -254,8 +255,8 @@ int main() {
 
         // Draw Earth at the stored position
         function drawEarth() {
-            const earthWidth = 200; // Double the size of the previous width
-            const earthHeight = 200; // Double the size of the previous height
+            const earthWidth = 150; // Double the size of the previous width
+            const earthHeight = 150; // Double the size of the previous height
             context.drawImage(earthImg, earthPosition.x, earthPosition.y, earthWidth, earthHeight);
         }
 
@@ -504,7 +505,7 @@ int main() {
             paused = false;
             lander = {
                 x: canvas.width / 2,
-                y: 400, // Starting at double the previous altitude
+                y: 500, // Starting at double the previous altitude
                 vx: 0,
                 vy: 0,
                 rotation: 0,
