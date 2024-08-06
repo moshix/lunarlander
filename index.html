@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atari-style Lunar Lander Game</title>
+    <title>moshix Lunar Lander or MVS/370</title>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { display: block; background: black; }
@@ -68,7 +68,7 @@
 int main() {
     int i;
     for (i = 0; i &lt; 10; i++) {
-        printf("This is boring C code.\\n");
+        printf("I love my boss! \n");
     }
     return 0;
 }</pre>
@@ -132,7 +132,7 @@ int main() {
 
         // Define game constants
         const gravity = 0.05;
-        const thrustPower = -0.12; // changed from 0.15
+        const thrustPower = -0.13; // changed from 0.15
         const lateralThrustPower = 0.1; // Thrust for lateral movement
         const fuelConsumptionRate = 0.3; // changed from 0.1
         const initialFuel = 50; // Developer-defined starting fuel, half the previous amount
@@ -284,7 +284,7 @@ int main() {
 
             // Draw the plume more to the left under the lander if thrusting
             if (lander.thrusting && fuel > 0) {
-                const plumeScale = 0.15;
+                const plumeScale = 0.13; // was 0.15
                 context.save();
                 context.translate(-30, landerImg.height / 2); // Further to the left
                 context.scale(plumeScale, plumeScale);
@@ -334,7 +334,7 @@ int main() {
 
                     // Check for crash based on vertical and horizontal speeds or if landed in a mountain zone
                     if (Math.abs(landingVerticalSpeed) > 3 || Math.abs(landingHorizontalSpeed) > 2 || crashedInMountain) {
-                        message = "You Crashed!";
+                        message = "You Crashed because of speed or mountains!";
                     } else {
                         message = "Successful Landing!";
                     }
@@ -458,7 +458,7 @@ int main() {
                             rocketSoundTimeout = setTimeout(() => {
                                 rocketSound.pause();
                                 isRocketSoundPlaying = false;
-                            }, 300); // Stop after 0.3 seconds
+                            }, 400); // Stop after 0.4 seconds
                         }
 
                         lander.thrusting = true;
