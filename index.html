@@ -45,12 +45,14 @@
 <body>
     <canvas id="gameCanvas"></canvas>
     <div id="ui">
+        <div><a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fmoshix.github.io%2Flunarlander%2F&count_bg=%2379C83D&title_bg=%230A60AE&icon=apacherocketmq.svg&icon_color=%23E7E7E7&title=hits&edge_flat=false"/></a></div>
         <div>Horizontal Speed: <span id="horizontal-speed">0</span></div>
         <div>Vertical Speed: <span id="vertical-speed">0</span></div>
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.17</div> <!-- version number -->
+        <div>Version: 1.18</div> <!-- version number -->
+        
     </div>
     <div class="legend" id="legend">
         <p style="color: red;"><strong>Controls:</strong></p>
@@ -69,7 +71,7 @@
 int main() {
     int i;
     for (i = 0; i &lt; 10; i++) {
-        printf("I love my boss! \n");
+        printf("I love my boss so much! \n");
     }
     return 0;
 }</pre>
@@ -104,8 +106,9 @@ int main() {
         // v 1.15 crash sound
         // v 1.16 change svg of lander upon crash
         // v 1.17 enable eagle has landed sound upon successful landing
+        // v 1.18 web visit counter seeyoufarm
 
-        const versionNumber = "1.17";
+        const versionNumber = "1.18";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
