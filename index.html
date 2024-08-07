@@ -317,6 +317,13 @@ function createLunarSurface() {
 	}
 
 
+	    // Reload the lander image to reset its state
+	   function reloadImages() {
+    		landerImg.src = 'lander.svg';
+    		crashedImg.src = 'crashed.svg';
+    		asteroidImg.src = 'asteroid.svg';
+	   }
+
 	    // Helper function to check if an image is loaded
 	   function isImageLoaded(img) {
     	     return img.complete && img.naturalHeight !== 0;
@@ -665,10 +672,9 @@ function getTerrainHeightAt(x) {
                 rotation: 0,
                 thrusting: false
             };
-	    // Reset the lander image to its initial state
-	    if (isImageLoaded(landerImg)) {
-       		 landerImg.src = 'lander.svg';
-   	     }		
+		
+	     // Reset the lander image to its initial state
+    	    reloadImages();
             lunarSurface = [];
             mountainZones = [];
             createLunarSurface();
