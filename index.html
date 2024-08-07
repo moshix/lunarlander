@@ -50,7 +50,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.15</div> <!-- version number -->
+        <div>Version: 1.16</div> <!-- version number -->
     </div>
     <div class="legend" id="legend">
         <p style="color: red;"><strong>Controls:</strong></p>
@@ -61,7 +61,7 @@
         <p style="color: purple;">R: Restart Game</p>
         <p style="color: cyan;">No landing on mountains</p> <!-- Note about mountains -->
         <p style="color: green;">Landing speed < 2.5 m/s</p> <!-- Note about speed -->
-        <p style="color: magenta;">(c) by HotDog Studios</p>
+        <p style="color: magenta;">(c) 2024 hotdog studios</p>
     </div>
     <div class="boss-screen" id="bossScreen">
         <pre>#include &lt;stdio.h&gt;
@@ -102,8 +102,9 @@ int main() {
         // v 1.13 fix game restart and crash detection
         // v 1.14 handle restart logic better (still sound not working...)
         // v 1.15 crash sound
+        // v 1.16 change svg of lander upon crash
 
-        const versionNumber = "1.15";
+        const versionNumber = "1.16";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -184,7 +185,8 @@ crashSound.onerror = () => console.error('Error loading crash.mp3.');
             vx: 0,
             vy: 0,
             rotation: 0,
-            thrusting: false
+            thrusting: false,
+            crashed: false // New property to track crash state
         };
 
         // Lunar surface properties, including mountain areas
@@ -295,18 +297,23 @@ crashSound.onerror = () => console.error('Error loading crash.mp3.');
         }
 
         // Draw the lander and its plume if thrusting
+        // show crashed.svg if crashed 
         function drawLander() {
             context.save();
             context.translate(lander.x, lander.y);
             context.rotate(lander.rotation);
             context.scale(landerSize, landerSize);
 
-            // Draw the lander image
-            context.drawImage(landerImg, -landerImg.width / 2, -landerImg.height / 2);
+            // Draw the appropriate lander image
+            if (lander.crashed) {
+                context.drawImage(crashedLanderImg, -crashedLanderImg.width / 2, -crashedLanderImg.height / 2);
+            } else {
+                context.drawImage(landerImg, -landerImg.width / 2, -landerImg.height / 2);
+            }
 
             // Draw the plume more to the left under the lander if thrusting
-            if (lander.thrusting && fuel > 0) {
-                const plumeScale = 0.13; // was 0.15
+            if (lander.thrusting && fuel > 0 && !lander.crashed) {
+                const plumeScale = 0.15; // Increased by 50%
                 context.save();
                 context.translate(-30, landerImg.height / 2); // Further to the left
                 context.scale(plumeScale, plumeScale);
@@ -316,6 +323,7 @@ crashSound.onerror = () => console.error('Error loading crash.mp3.');
 
             context.restore();
         }
+
 
         // Update the lander's position and velocity
         function updateLander() {
@@ -357,11 +365,13 @@ crashSound.onerror = () => console.error('Error loading crash.mp3.');
                     // Check for crash based on vertical and horizontal speeds or if landed in a mountain zone
                     if (crashedInMountain) {
                         message = "You crashed into a lunar mountain"
+                        lander.crashed = true;
                         if (crashSoundLoaded) {
                             crashSound.play();
                           }
                     } else if (Math.abs(landingVerticalSpeed) > 2.5 || Math.abs(landingHorizontalSpeed) > 2) {
                         message = "You crashed because of vertical or lateral speed"
+                        lander.crashed = true;
                         if (crashSoundLoaded) {
                                 crashSound.play();
                          }
