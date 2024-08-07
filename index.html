@@ -311,6 +311,7 @@ crashSound.onerror = () => console.error('Error loading crash.mp3.');
 
             // Draw the appropriate lander image
             if (lander.crashed) {
+                context.scale(landerSize * 2.3, landerSize * 2.3); // Scale the crashed lander image 
                 context.drawImage(crashedLanderImg, -crashedLanderImg.width, -crashedLanderImg.height);
             } else {
                 context.drawImage(landerImg, -landerImg.width / 2, -landerImg.height / 2);
