@@ -129,6 +129,11 @@ int main() {
         earthImg.onerror = () => console.error('Error loading earth.svg.');
         earthImg.src = 'earth.svg';
 
+        const crashedLanderImg = new Image();
+        crashedLanderImg.onload = () => console.log('crashed.svg loaded successfully.');
+        crashedLanderImg.onerror = () => console.error('Error loading crashed.svg.');
+        crashedLanderImg.src = 'crashed.svg';
+
         // Load the rocket sound with error handling
         const rocketSound = new Audio('rocket.mp3');
         let rocketSoundLoaded = false;
