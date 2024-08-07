@@ -60,7 +60,8 @@
         <p style="color: blue;">B: Boss Key</p>
         <p style="color: purple;">R: Restart Game</p>
         <p style="color: cyan;">No landing on mountains</p> <!-- Note about mountains -->
-        <p style="color: magenta;">by HotDog Studios</p>
+        <p style="color: green;">Landing speed < 2.5 m/s</p> <!-- Note about speed -->
+        <p style="color: magenta;">(c) by HotDog Studios</p>
     </div>
     <div class="boss-screen" id="bossScreen">
         <pre>#include &lt;stdio.h&gt;
@@ -333,13 +334,14 @@ int main() {
                     }
 
                     // Check for crash based on vertical and horizontal speeds or if landed in a mountain zone
-                    if (Math.abs(landingVerticalSpeed) > 2.5 || Math.abs(landingHorizontalSpeed) > 2) {
-                        message = "You crashed because of vertical or lateral speed";
-                    } else if (crashedInMountain) {
+                    if (crashedInMountain) {
                         message = "You crashed into a lunar mountain"
+                    } else if (Math.abs(landingVerticalSpeed) > 2.5 || Math.abs(landingHorizontalSpeed) > 2) {
+                        message = "You crashed because of vertical or lateral speed"
                     } else {
                         message = "Successful Landing!";
                     }
+
 
                 
                     landingMetrics = `
