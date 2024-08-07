@@ -396,7 +396,7 @@ function createLunarSurface() {
 
                     // Check for crash based on vertical and horizontal speeds or if landed in a mountain zone
                     if (lander.y > landerTerrainY || isOnHill) {
-                        message = "You crashed into a lunar mountain"
+                        message = "You crashed into a lunar crater"
                         lander.crashed = true;
                         if (crashSoundLoaded) {
                             crashSound.volume = 0.4;
