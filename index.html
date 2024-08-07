@@ -342,6 +342,24 @@ function createLunarSurface() {
         }
 
 
+
+        // Get the height of the lunar surface at a specific x position
+        function getTerrainHeightAt(x) {
+        for (let i = 0; i < lunarSurface.length - 1; i++) {
+        const segment = lunarSurface[i];
+        const nextSegment = lunarSurface[i + 1];
+        
+        if (x >= segment.x && x <= segment.x + segment.width) {
+            // Linear interpolation to find the y position
+            const t = (x - segment.x) / segment.width;
+            return segment.height * (1 - t) + nextSegment.height * t;
+                }
+            }
+        return 0; // Default height if out of bounds
+        }
+
+        
+
         // Update the lander's position and velocity
         function updateLander() {
             if (lander.thrusting && fuel > 0) {
@@ -370,17 +388,15 @@ function createLunarSurface() {
                 if (!landed) {
                     landed = true;
 
-                    // Determine if the lander is in a mountain zone
-                    let crashedInMountain = false;
-                    for (const zone of mountainZones) {
-                        if (lander.x >= zone.x && lander.x <= zone.x + zone.width) {
-                            crashedInMountain = true;
-                            break;
-                        }
-                    }
+                // Determine the terrain height at the lander's x position
+                const terrainHeight = getTerrainHeightAt(lander.x);
+                const landerTerrainY = canvas.height - surfaceHeight - terrainHeight;
+
+                // Determine if the lander is on a hill
+                const isOnHill = terrainHeight > 0;
 
                     // Check for crash based on vertical and horizontal speeds or if landed in a mountain zone
-                    if (crashedInMountain) {
+                    if ((lander.y > landerTerrainY || isOnHill) {
                         message = "You crashed into a lunar mountain"
                         lander.crashed = true;
                         if (crashSoundLoaded) {
