@@ -317,6 +317,12 @@ function createLunarSurface() {
 	}
 
 
+	    // Helper function to check if an image is loaded
+	   function isImageLoaded(img) {
+    	     return img.complete && img.naturalHeight !== 0;
+            }		
+
+
 	    // Draw the lunar surface on the canvas with gently sloping hills and flat surfaces
 function drawLunarSurface() {
     context.fillStyle = 'gray';
@@ -659,6 +665,10 @@ function getTerrainHeightAt(x) {
                 rotation: 0,
                 thrusting: false
             };
+	    // Reset the lander image to its initial state
+	    if (isImageLoaded(landerImg)) {
+       		 landerImg.src = 'lander.svg';
+   	     }		
             lunarSurface = [];
             mountainZones = [];
             createLunarSurface();
