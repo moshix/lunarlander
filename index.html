@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.18</div> <!-- version number -->
+        <div>Version: 1.19</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -107,8 +107,9 @@ int main() {
         // v 1.16 change svg of lander upon crash
         // v 1.17 enable eagle has landed sound upon successful landing
         // v 1.18 web visit counter seeyoufarm
+        // v 1.19 craters instead of hangars... 
 
-        const versionNumber = "1.18";
+        const versionNumber = "1.19";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -217,64 +218,59 @@ int main() {
         // Starfield data
         const stars = [];
 
-        // Create a simple lunar surface
-        function createLunarSurface() {
-            let x = 0;
-            let totalMountainWidth = 0;
 
-            while (x < canvas.width) {
-                const width = Math.random() * 50 + 50;
-                const peakHeight = (Math.random() * 100 + 70) / 2; // Peaks are less pointy
-                const isMountain = Math.random() < 0.6; // 50% chance for mountains
+// Create a  lunar surface
+function createLunarSurface() {
+    lunarSurface = [];
+    let x = 0;
+    let totalWidth = 0;
+    let flatSurfaceWidth = 0;
 
-                if (isMountain) {
-                    mountainZones.push({ x, width });
-                    totalMountainWidth += width;
-                }
+    while (x < canvas.width) {
+        const width = Math.random() * 50 + 50;
+        let height = Math.random() * 50 + 10; // Gentle hills
+        let nextHeight = Math.random() * 50 + 10;
 
-                lunarSurface.push({ x, width, peakHeight, isMountain });
-                x += width;
-            }
-
-            // Ensure at least 50% of the landscape is mountain
-            if (totalMountainWidth < canvas.width / 2) {
-                mountainZones = [];
-                lunarSurface = [];
-                createLunarSurface();
-            }
+        if (Math.random() < 0.4) { // 50% chance for flat surface
+            height = nextHeight = 0;
+            flatSurfaceWidth += width;
         }
 
-        // Draw the lunar surface on the canvas with a 3D effect
-        function drawLunarSurface() {
-            context.fillStyle = 'gray';
-            context.beginPath();
-            context.moveTo(0, canvas.height);
+        lunarSurface.push({ x, width, height, nextHeight });
+        x += width;
+        totalWidth += width;
+    }
 
-            lunarSurface.forEach((segment) => {
-                const peakY = canvas.height - surfaceHeight - segment.peakHeight;
-                const nextPeakX = segment.x + segment.width;
+    // Ensure at least 50% of the surface is flat
+    if (flatSurfaceWidth < totalWidth / 2) {
+        createLunarSurface();
+    }
+}
 
-                if (segment.isMountain) {
-                    // Create a 3D effect by adding shading
-                    context.lineTo(segment.x, peakY);
-                    context.lineTo(nextPeakX, canvas.height - surfaceHeight);
+        
 
-                    // Draw shading for 3D effect
-                    const gradient = context.createLinearGradient(segment.x, peakY, nextPeakX, canvas.height - surfaceHeight);
-                    gradient.addColorStop(0, 'darkgray');
-                    gradient.addColorStop(1, 'lightgray');
-                    context.fillStyle = gradient;
-                    context.fillRect(segment.x, peakY, segment.width, canvas.height - surfaceHeight - peakY);
-                } else {
-                    context.lineTo(segment.x, canvas.height - surfaceHeight);
-                    context.lineTo(nextPeakX, canvas.height - surfaceHeight);
-                }
-            });
+    // Draw the lunar surface on the canvas with gently sloping hills and flat surfaces
+    function drawLunarSurface() {
+    context.fillStyle = 'gray';
+    context.beginPath();
+    context.moveTo(0, canvas.height - surfaceHeight);
 
-            context.lineTo(canvas.width, canvas.height);
-            context.closePath();
-            context.fill();
-        }
+    lunarSurface.forEach((segment) => {
+        const peakY = canvas.height - surfaceHeight - segment.height;
+        const nextPeakY = canvas.height - surfaceHeight - segment.nextHeight;
+        const nextX = segment.x + segment.width;
+
+        context.lineTo(segment.x, peakY);
+        context.quadraticCurveTo(segment.x + segment.width / 2, peakY, nextX, nextPeakY);
+    });
+
+    context.lineTo(canvas.width, canvas.height);
+    context.lineTo(0, canvas.height);
+    context.closePath();
+    context.fill();
+    }
+
+        
 
         // Create static stars in the background
         function createStars() {
