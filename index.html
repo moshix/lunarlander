@@ -385,6 +385,7 @@ int main() {
                         message = "You crashed into a lunar mountain"
                         lander.crashed = true;
                         if (crashSoundLoaded) {
+                            crashSound.volume = 0.5;
                             crashSound.play();
                           }
                     } else if (Math.abs(landingVerticalSpeed) > 2.5 || Math.abs(landingHorizontalSpeed) > 2) {
@@ -396,6 +397,7 @@ int main() {
                     } else {
                         message = "  Successful Landing!";
                         if (eaglelandedsoundLoaded) {
+                            eaglelanded.volume = 0.3;
                             eaglelanded.play();
                           }
                     }
@@ -517,6 +519,7 @@ int main() {
                         if (!isRocketSoundPlaying && rocketSoundLoaded) {
                             isRocketSoundPlaying = true;
                             rocketSound.currentTime = 0; // Restart the sound
+                            rocketSound.volume = 0.8;
                             rocketSound.play();
                             rocketSoundTimeout = setTimeout(() => {
                                 rocketSound.pause();
