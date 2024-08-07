@@ -50,7 +50,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.11</div> <!-- Developer-given version number -->
+        <div>Version: 1.13</div> <!-- version number -->
     </div>
     <div class="legend" id="legend">
         <p style="color: red;"><strong>Controls:</strong></p>
@@ -92,6 +92,9 @@ int main() {
         // v 1.10 3D-like lunar surface and further UI adjustments
         // v 1.11 removed arches, improved 3D surface, fixed sound, less pointy mountains
         // v 1.12 fix game physics
+        // v 1.13 fix game restart and crash detection
+
+        const versionNumber = "1.13";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -135,7 +138,7 @@ int main() {
         const thrustPower = -0.13; // changed from 0.15
         const lateralThrustPower = 0.1; // Thrust for lateral movement
         const fuelConsumptionRate = 0.3; // changed from 0.1
-        const initialFuel = 75; // Developer-defined starting fuel, half the previous amount
+        const initialFuel = 75; // starting fuel, half the previous amount
         const landerSize = 0.350; //was 0.375
         let fuel = initialFuel;
         let landed = false;
@@ -144,9 +147,6 @@ int main() {
         let message = "";
         let landingMetrics = "";
         let rocketSoundTimeout;
-
-        // Developer-defined version number
-        const versionNumber = "1.12";
 
         // Earth position, set once per game start
         let earthPosition = { x: 0, y: 0 };
@@ -333,12 +333,15 @@ int main() {
                     }
 
                     // Check for crash based on vertical and horizontal speeds or if landed in a mountain zone
-                    if (Math.abs(landingVerticalSpeed) > 3 || Math.abs(landingHorizontalSpeed) > 2 || crashedInMountain) {
-                        message = "You Crashed because of speed or mountains!";
+                    if (Math.abs(landingVerticalSpeed) > 2.5 || Math.abs(landingHorizontalSpeed) > 2) {
+                        message = "You crashed because of vertical or lateral speed";
+                    } else if (crashedInMountain) {
+                        message = "You crashed into a lunar mountain"
                     } else {
                         message = "Successful Landing!";
                     }
 
+                
                     landingMetrics = `
                         Horizontal Speed: ${landingHorizontalSpeed.toFixed(2)} m/s\n
                         Vertical Speed: ${landingVerticalSpeed.toFixed(2)} m/s\n
@@ -458,7 +461,7 @@ int main() {
                             rocketSoundTimeout = setTimeout(() => {
                                 rocketSound.pause();
                                 isRocketSoundPlaying = false;
-                            }, 400); // Stop after 0.4 seconds
+                            }, 600); // Stop after 0.4 seconds
                         }
 
                         lander.thrusting = true;
@@ -505,7 +508,7 @@ int main() {
             paused = false;
             lander = {
                 x: canvas.width / 2,
-                y: 500, // Starting at double the previous altitude
+                y: 200, // Starting at double the previous altitude
                 vx: 0,
                 vy: 0,
                 rotation: 0,
