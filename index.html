@@ -212,7 +212,7 @@ int main() {
 
         // Lunar surface properties, including mountain areas
         let lunarSurface = [];
-        const surfaceHeight = 30; // Height of the gray moon area was 100
+        const surfaceHeight = 30; // Height of the gray moon area
         let mountainZones = []; // Store the ranges of mountain zones
 
         // Starfield data
@@ -231,7 +231,7 @@ function createLunarSurface() {
         let height = Math.random() * 50 + 10; // Gentle hills
         let nextHeight = Math.random() * 50 + 10;
 
-        if (Math.random() < 0.4) { // 50% chance for flat surface
+        if (Math.random() < 0.3) { // 50% chance for flat surface
             height = nextHeight = 0;
             flatSurfaceWidth += width;
         }
@@ -242,7 +242,7 @@ function createLunarSurface() {
     }
 
     // Ensure at least 50% of the surface is flat
-    if (flatSurfaceWidth < totalWidth / 2) {
+    if (flatSurfaceWidth < totalWidth / 3) {
         createLunarSurface();
     }
 }
