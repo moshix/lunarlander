@@ -385,18 +385,17 @@ function createLunarSurface() {
                 const landingHorizontalSpeed = lander.vx;
                 const landingFuelRemaining = fuel;
 
-                if (!landed) {
+             if (!landed) {
                     landed = true;
-
                 // Determine the terrain height at the lander's x position
-                const terrainHeight = getTerrainHeightAt(lander.x);
-                const landerTerrainY = canvas.height - surfaceHeight - terrainHeight;
+              const terrainHeight = getTerrainHeightAt(lander.x);
+              const landerTerrainY = canvas.height - surfaceHeight - terrainHeight;
 
-                // Determine if the lander is on a hill
-                const isOnHill = terrainHeight > 0;
+             // Determine if the lander is on a hill
+              const isOnHill = terrainHeight > 0;
 
                     // Check for crash based on vertical and horizontal speeds or if landed in a mountain zone
-                    if ((lander.y > landerTerrainY || isOnHill) {
+                    if (lander.y > landerTerrainY || isOnHill) {
                         message = "You crashed into a lunar mountain"
                         lander.crashed = true;
                         if (crashSoundLoaded) {
@@ -417,7 +416,6 @@ function createLunarSurface() {
                             eaglelanded.play();
                           }
                     }
-
 
                 
                     landingMetrics = `
