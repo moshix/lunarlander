@@ -50,7 +50,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.13</div> <!-- version number -->
+        <div>Version: 1.14</div> <!-- version number -->
     </div>
     <div class="legend" id="legend">
         <p style="color: red;"><strong>Controls:</strong></p>
@@ -88,14 +88,21 @@ int main() {
         // v 0.9 Boss key, pause and restart
         // v 1.0 first half-way usable game
         // v 1.01 crash detection fix and version update
-        // v 1.0.8 mountain crash zones and double altitude start
+        // v 1.02 earth and sun (with no gravity pull)
+        // v 1.03 speed detection at landing
+        // v 1.04 mountains 
+        // v 1.05 stars in background about 120
+        // v 1.06 change physics and lateral movement
+        // v 1.07 Controls legend on the right and altitude bar far right
+        // v 1.08 mountain crash zones and double altitude start
         // v 1.09 updated fuel, mountain appearance, and UI enhancements
         // v 1.10 3D-like lunar surface and further UI adjustments
         // v 1.11 removed arches, improved 3D surface, fixed sound, less pointy mountains
         // v 1.12 fix game physics
         // v 1.13 fix game restart and crash detection
+        // v 1.14 handle restart logic better (still sound not working...)
 
-        const versionNumber = "1.13";
+        const versionNumber = "1.14";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -235,7 +242,7 @@ int main() {
 
         // Create static stars in the background
         function createStars() {
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 120; i++) {
                 stars.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * (canvas.height - surfaceHeight),
@@ -263,7 +270,7 @@ int main() {
 
         // Set Earth position randomly above the surface of the moon
         function setEarthPosition() {
-            const earthWidth = 200;
+            const earthWidth = 100;
             const earthHeight = 200;
             const minX = 350; // Minimum X position to avoid the metrics area
             const maxX = canvas.width - earthWidth - 100; // Avoid the right edge
@@ -316,7 +323,7 @@ int main() {
             if (lander.y > groundY) {
                 lander.y = groundY;
 
-                // Store the metrics at the time of landing
+                // Store the metrics at the time of landing, so they don't overwrite
                 const landingVerticalSpeed = lander.vy;
                 const landingHorizontalSpeed = lander.vx;
                 const landingFuelRemaining = fuel;
@@ -351,7 +358,7 @@ int main() {
                     `;
                 }
 
-                // Stop the lander's movement completely
+                // Stop the lander's movement 
                 lander.vx = 0;
                 lander.vy = 0;
             }
@@ -510,7 +517,7 @@ int main() {
             paused = false;
             lander = {
                 x: canvas.width / 2,
-                y: 200, // Starting at double the previous altitude
+                y: 100, // altitude over moon surface
                 vx: 0,
                 vy: 0,
                 rotation: 0,
