@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.19</div> <!-- version number -->
+        <div>Version: 1.20</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -62,7 +62,7 @@
         <p style="color: blue;">B: Boss Key</p>
         <p style="color: purple;">R: Restart Game</p>
         <p style="color: cyan;">No landing on craters</p> 
-        <p style="color: red;">Landing speed < 2.5 m/s</p>
+        <p style="color: red;">Landing speed < 2.5 m/s</p> 
         <p style="color: magenta;">(c) 2024 hotdog studios</p>
     </div>
     <div class="boss-screen" id="bossScreen">
@@ -107,9 +107,10 @@ int main() {
         // v 1.16 change svg of lander upon crash
         // v 1.17 enable eagle has landed sound upon successful landing
         // v 1.18 web visit counter seeyoufarm
-        // v 1.19 craters!
+	// v 1.19 craters!
+	// v 1.20 asteroids!
 
-        const versionNumber = "1.19";
+        const versionNumber = "1.20";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -139,6 +140,12 @@ int main() {
         crashedLanderImg.onerror = () => console.error('Error loading crashed.svg.');
         crashedLanderImg.src = 'crashed.svg';
 
+	const asteroidImg = new Image();
+	asteroidImg.onload = () => console.log('asteroid.svg loaded successfully.');
+	asteroidImg.onerror = () => console.error('Error loading asteroid.svg.');
+	asteroidImg.src = 'asteroid.svg';
+
+	    
         // Load the rocket sound with error handling
         const rocketSound = new Audio('rocket.mp3');
         let rocketSoundLoaded = false;
@@ -190,7 +197,11 @@ int main() {
         let showingBossScreen = false;
         let message = "";
         let landingMetrics = "";
-        let rocketSoundTimeout;
+	let rocketSoundTimeout;
+
+	let asteroid = null;
+	let asteroidSpawnTimeout;
+
 
         // Earth position, set once per game start
         let earthPosition = { x: 0, y: 0 };
@@ -245,6 +256,66 @@ function createLunarSurface() {
         createLunarSurface();
     }
 }
+
+	// Function to spawn an asteroid at a random time
+	function spawnAsteroid() {
+	    if (!asteroid) { // Only spawn a new asteroid if there isn't one already
+	        const startX = Math.random() < 0.5 ? 0 : canvas.width;
+	        const startY = 0;
+	        const targetX = startX === 0 ? canvas.width : 0;
+	        const targetY = canvas.height;
+	
+	        asteroid = {
+	            x: startX,
+	            y: startY,
+	            vx: (targetX - startX) / canvas.height * 2,
+	            vy: 2, // Asteroid speed
+	            width: 50,
+	            height: 50
+	        };
+	    }
+	
+	    // Schedule the next asteroid spawn
+	    asteroidSpawnTimeout = setTimeout(spawnAsteroid, Math.random() * 5000 + 5000);
+	}
+
+
+	    // Function to move the asteroid
+	function moveAsteroid() {
+	    if (asteroid) {
+	        asteroid.x += asteroid.vx;
+	        asteroid.y += asteroid.vy;
+	
+	        // Check for collision with the lander
+	        if (
+	            asteroid.x < lander.x + landerImg.width * landerSize / 2 &&
+	            asteroid.x + asteroid.width > lander.x - landerImg.width * landerSize / 2 &&
+	            asteroid.y < lander.y + landerImg.height * landerSize / 2 &&
+	            asteroid.y + asteroid.height > lander.y - landerImg.height * landerSize / 2
+	        ) {
+	   	    lander.crashed = true;
+                    if (crashSoundLoaded) {
+                        crashSound.volume = 0.4;
+                        crashSound.play();
+                    }
+	            landed = true;
+	            //asteroid = null; // Remove the asteroid
+	        }
+	
+	        // Remove the asteroid if it goes out of bounds
+	        if (asteroid.y > canvas.height) {
+	            asteroid = null;
+	        }
+	    }
+	}
+	
+	// Function to draw the asteroid
+	function drawAsteroid() {
+	    if (asteroid) {
+	        context.drawImage(asteroidImg, asteroid.x, asteroid.y, asteroid.width, asteroid.height);
+	    }
+	}
+
 
 	    // Draw the lunar surface on the canvas with gently sloping hills and flat surfaces
 function drawLunarSurface() {
@@ -390,7 +461,7 @@ function getTerrainHeightAt(x) {
 
                     // Check for crash based on vertical and horizontal speeds or if landed in a mountain zone
                     if (lander.y > landerTerrainY || isOnHill) {
-                        message = "You crashed into a lunar crater!"
+                        message = "You crashed into a lunar crater"
                         lander.crashed = true;
                         if (crashSoundLoaded) {
                             crashSound.volume = 0.4;
@@ -494,6 +565,7 @@ function getTerrainHeightAt(x) {
                 drawEarth();
                 drawLunarSurface();
                 drawLander();
+		drawAsteroid(); // Draw the asteroid
                 drawMessage();
                 drawDescentIndicator();
             }
@@ -503,6 +575,7 @@ function getTerrainHeightAt(x) {
         function gameLoop() {
             if (!paused && !showingBossScreen) {
                 updateLander();
+	        moveAsteroid();
             }
             draw();
             requestAnimationFrame(gameLoop);
@@ -590,6 +663,7 @@ function getTerrainHeightAt(x) {
             mountainZones = [];
             createLunarSurface();
             setEarthPosition(); // Set a new random position for Earth
+	    spawnAsteroid(); // Start spawning asteroids
         }
 
         // Initialize the game and start the main loop
