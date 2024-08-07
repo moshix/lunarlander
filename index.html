@@ -107,7 +107,7 @@ int main() {
         // v 1.16 change svg of lander upon crash
         // v 1.17 enable eagle has landed sound upon successful landing
         // v 1.18 web visit counter seeyoufarm
-        // v 1.19 craters instead of hangars... 
+        // v 1.19 craters!
 
         const versionNumber = "1.19";
 
@@ -212,14 +212,13 @@ int main() {
 
         // Lunar surface properties, including mountain areas
         let lunarSurface = [];
-        const surfaceHeight = 30; // Height of the gray moon area
+        const surfaceHeight = 30; // Height of the gray moon area was 100
         let mountainZones = []; // Store the ranges of mountain zones
 
         // Starfield data
         const stars = [];
 
-
-// Create a  lunar surface
+// Create a simple lunar surface with gently sloping hills and at least 50% flat surfaces
 function createLunarSurface() {
     lunarSurface = [];
     let x = 0;
@@ -228,10 +227,10 @@ function createLunarSurface() {
 
     while (x < canvas.width) {
         const width = Math.random() * 50 + 50;
-        let height = Math.random() * 40 + 10; // Gentle hills
-        let nextHeight = Math.random() * 40 + 10;
+        let height = Math.random() * 50 + 10; // Gentle hills
+        let nextHeight = Math.random() * 50 + 10;
 
-        if (Math.random() < 0.3) { // 50% chance for flat surface
+        if (Math.random() < 0.5) { // 50% chance for flat surface
             height = nextHeight = 0;
             flatSurfaceWidth += width;
         }
@@ -242,15 +241,13 @@ function createLunarSurface() {
     }
 
     // Ensure at least 50% of the surface is flat
-    if (flatSurfaceWidth < totalWidth / 3) {
+    if (flatSurfaceWidth < totalWidth / 2) {
         createLunarSurface();
     }
 }
 
-        
-
-    // Draw the lunar surface on the canvas with gently sloping hills and flat surfaces
-    function drawLunarSurface() {
+	    // Draw the lunar surface on the canvas with gently sloping hills and flat surfaces
+function drawLunarSurface() {
     context.fillStyle = 'gray';
     context.beginPath();
     context.moveTo(0, canvas.height - surfaceHeight);
@@ -268,9 +265,24 @@ function createLunarSurface() {
     context.lineTo(0, canvas.height);
     context.closePath();
     context.fill();
-    }
+}
 
+// Get the height of the lunar surface at a specific x position
+function getTerrainHeightAt(x) {
+    for (let i = 0; i < lunarSurface.length - 1; i++) {
+        const segment = lunarSurface[i];
+        const nextSegment = lunarSurface[i + 1];
         
+        if (x >= segment.x && x <= segment.x + segment.width) {
+            // Linear interpolation to find the y position
+            const t = (x - segment.x) / segment.width;
+            return segment.height * (1 - t) + nextSegment.height * t;
+        }
+    }
+    return 0; // Default height if out of bounds
+}
+
+
 
         // Create static stars in the background
         function createStars() {
@@ -342,24 +354,6 @@ function createLunarSurface() {
         }
 
 
-
-        // Get the height of the lunar surface at a specific x position
-        function getTerrainHeightAt(x) {
-        for (let i = 0; i < lunarSurface.length - 1; i++) {
-        const segment = lunarSurface[i];
-        const nextSegment = lunarSurface[i + 1];
-        
-        if (x >= segment.x && x <= segment.x + segment.width) {
-            // Linear interpolation to find the y position
-            const t = (x - segment.x) / segment.width;
-            return segment.height * (1 - t) + nextSegment.height * t;
-                }
-            }
-        return 0; // Default height if out of bounds
-        }
-
-        
-
         // Update the lander's position and velocity
         function updateLander() {
             if (lander.thrusting && fuel > 0) {
@@ -385,9 +379,9 @@ function createLunarSurface() {
                 const landingHorizontalSpeed = lander.vx;
                 const landingFuelRemaining = fuel;
 
-             if (!landed) {
+                if (!landed) {
                     landed = true;
-                // Determine the terrain height at the lander's x position
+		// Determine the terrain height at the lander's x position
               const terrainHeight = getTerrainHeightAt(lander.x);
               const landerTerrainY = canvas.height - surfaceHeight - terrainHeight;
 
@@ -396,7 +390,7 @@ function createLunarSurface() {
 
                     // Check for crash based on vertical and horizontal speeds or if landed in a mountain zone
                     if (lander.y > landerTerrainY || isOnHill) {
-                        message = "You crashed into a lunar crater"
+                        message = "You crashed into a lunar crater!"
                         lander.crashed = true;
                         if (crashSoundLoaded) {
                             crashSound.volume = 0.4;
@@ -416,6 +410,7 @@ function createLunarSurface() {
                             eaglelanded.play();
                           }
                     }
+
 
                 
                     landingMetrics = `
