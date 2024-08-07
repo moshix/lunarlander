@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>moshix Lunar Lander or MVS/370</title>
+    <title>Lunar Lander for MVS/370</title>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { display: block; background: black; }
@@ -50,7 +50,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.16</div> <!-- version number -->
+        <div>Version: 1.17</div> <!-- version number -->
     </div>
     <div class="legend" id="legend">
         <p style="color: red;"><strong>Controls:</strong></p>
@@ -103,8 +103,9 @@ int main() {
         // v 1.14 handle restart logic better (still sound not working...)
         // v 1.15 crash sound
         // v 1.16 change svg of lander upon crash
+        // v 1.17 enable eagle has landed sound upon successful landing
 
-        const versionNumber = "1.16";
+        const versionNumber = "1.17";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -158,8 +159,19 @@ int main() {
                crashSoundLoaded = true;
            }
        };
-crashSound.onerror = () => console.error('Error loading crash.mp3.');
+       crashSound.onerror = () => console.error('Error loading crash.mp3.');
 
+
+        // load eagle has landed with error handling
+        const eaglelanded = new Audio('eaglelanded.mp3');
+        let eaglelandedsoundLoaded = false;
+        eaglelanded.oncanplaythrough = () => {
+            if (!eaglelandedsoundLoaded) {
+                console.log('eagle landed mp3 loaded successfully.');
+                eaglelandedsoundLoaded = true;
+            }
+        };
+        eaglelanded.onerror = () => console.error('Error loading eagle landed mp3');
         
         // Define game constants
         const gravity = 0.05; // moon gravity 
@@ -382,7 +394,10 @@ crashSound.onerror = () => console.error('Error loading crash.mp3.');
                                 crashSound.play();
                          }
                     } else {
-                        message = "Successful Landing!";
+                        message = "  Successful Landing!";
+                        if (eaglelandedsoundLoaded) {
+                            eaglelanded.play();
+                          }
                     }
 
 
