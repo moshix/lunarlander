@@ -386,7 +386,8 @@ function getTerrainHeightAt(x) {
 
         // Create static stars in the background
         function createStars() {
-            for (let i = 0; i < 120; i++) {
+                conditionalGonogo(); // each time we start let's randomly play go/no-go checklist 
+		for (let i = 0; i < 120; i++) {
                 stars.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * (canvas.height - surfaceHeight),
@@ -674,6 +675,15 @@ function getTerrainHeightAt(x) {
             lander.thrusting = false; // Lander stops thrusting when key is released
         });
 
+	    
+        function conditionalGonogo(){
+           // Conditionally play the gonogo sound 1 in 3 times
+    	   if (gonogoSoundLoaded && Math.random() < 1/3) {
+        	gonogoSound.play();
+	   }
+	}
+
+	    
         // Restart the game
         function restartGame() {
             fuel = initialFuel;
@@ -695,9 +705,6 @@ function getTerrainHeightAt(x) {
             lunarSurface = [];
             mountainZones = [];
             createLunarSurface();
-	    // Conditionally play the gonogo sound 1 in 3 times
-    	    if (gonogoSoundLoaded && Math.random() < 1/3) {
-        	gonogoSound.play();	
 	    }		    
             setEarthPosition(); // Set a new random position for Earth
 	    spawnAsteroid(); // Start spawning asteroids
@@ -708,9 +715,7 @@ function getTerrainHeightAt(x) {
         createLunarSurface();
         setEarthPosition(); // Set initial position for Earth
 	
-        // Conditionally play the gonogo sound 1 in 3 times
-    	if (gonogoSoundLoaded && Math.random() < 1/3) {
-        	gonogoSound.play();
+ 
     	}    
         gameLoop();
     </script>
