@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.20</div> <!-- version number -->
+        <div>Version: 1.21</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -109,8 +109,9 @@ int main() {
         // v 1.18 web visit counter seeyoufarm
 	// v 1.19 craters!
 	// v 1.20 asteroids!
+        // v 1.21 powered descent Houston checklist go/nogo
 
-        const versionNumber = "1.20";
+        const versionNumber = "1.21";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -183,12 +184,27 @@ int main() {
             }
         };
         eaglelanded.onerror = () => console.error('Error loading eagle landed mp3');
-        
-        // Define game constants
-        const gravity = 0.05; // moon gravity 
+
+
+	// Load the gonogo sound with error handling
+	const gonogoSound = new Audio('gonogo.mp3');
+	let gonogoSoundLoaded = false;
+
+	gonogoSound.oncanplaythrough = () => {
+ 	   if (!gonogoSoundLoaded) {
+   	     console.log('gonogo.mp3 loaded successfully.');
+    	    gonogoSoundLoaded = true;
+	    }
+	};
+gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
+
+
+	    
+        // ------------ Define game constants --------------------
+        const gravity = 0.043; // moon gravity should be 0.05....
         const thrustPower = -0.13; // changed from 0.15
         const lateralThrustPower = 0.1; // Thrust for lateral movement
-        const fuelConsumptionRate = 0.3; // changed from 0.1
+        const fuelConsumptionRate = 0.32; // 
         const initialFuel = 60; // starting fuel, half the previous amount
         const landerSize = 0.350;
         let fuel = initialFuel;
@@ -688,6 +704,11 @@ function getTerrainHeightAt(x) {
         createStars();
         createLunarSurface();
         setEarthPosition(); // Set initial position for Earth
+	
+        // Conditionally play the gonogo sound 1 in 3 times
+    	if (gonogoSoundLoaded && Math.random() < 1/3) {
+        	gonogoSound.play();
+    	}    
         gameLoop();
     </script>
 </body>
