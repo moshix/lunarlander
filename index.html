@@ -589,6 +589,7 @@ function getTerrainHeightAt(x) {
         function gameLoop() {
             if (!paused && !showingBossScreen) {
                 updateLander();
+		spawnAsteroid(); // Start spawning asteroids    
 	        moveAsteroid();
             }
             draw();
