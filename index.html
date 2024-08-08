@@ -696,6 +696,10 @@ function getTerrainHeightAt(x) {
             lunarSurface = [];
             mountainZones = [];
             createLunarSurface();
+	    // Conditionally play the gonogo sound 1 in 3 times
+    	    if (gonogoSoundLoaded && Math.random() < 1/3) {
+        	gonogoSound.play();	
+	    }		    
             setEarthPosition(); // Set a new random position for Earth
 	    spawnAsteroid(); // Start spawning asteroids
         }
