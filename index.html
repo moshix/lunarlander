@@ -282,15 +282,18 @@ function createLunarSurface() {
 }
 
 
-	// Function to initialize a new asteroid with random position and angle
 	function initializeAsteroid() {
-	    // Randomize the starting x position, slightly off-screen to the left or right
-	    asteroid.x = Math.random() < 0.5 ? -50 : canvas.width + 50;
-	    asteroid.y = Math.random() * canvas.height / 3; // Start near the top third of the screen
+	    asteroid = {
+	        x: Math.random() * canvas.width, // Random starting x position within canvas width
+	        y: -50, // Start slightly above the canvas
+	        vx: 0,
+	        vy: 0,
+ 	       angle: 0 // Angle of descent
+	    };
 
-	    // Randomize the angle of descent, but keep it between -75 to -45 degrees or 45 to 75 degrees
-	    const angleRange = Math.random() < 0.5 ? [-75, -45] : [45, 75];
-	    asteroid.angle = (Math.random() * (angleRange[1] - angleRange[0])) + angleRange[0];
+	    // Ensure the angle is always downward, limit angle range to downward directions
+ 	   const angleRange = [105, 255]; // Angles between 105° and 255° ensure downward motion
+ 	   asteroid.angle = (Math.random() * (angleRange[1] - angleRange[0])) + angleRange[0];
 	
 	    // Convert angle to radians and calculate velocity components
  	   const angleInRadians = asteroid.angle * Math.PI / 180;
@@ -298,8 +301,9 @@ function createLunarSurface() {
  	   asteroid.vx = Math.cos(angleInRadians) * speed;
  	   asteroid.vy = Math.sin(angleInRadians) * speed;
 
- 	    // console.log(`Asteroid initialized at (${asteroid.x}, ${asteroid.y}) with angle ${asteroid.angle}°`);
-}
+  	  console.log(`Asteroid initialized at (${asteroid.x}, ${asteroid.y}) with angle ${asteroid.angle}°`);
+	}
+
 
     	// Function to update the asteroid's position
 	function updateAsteroid() {
@@ -367,11 +371,14 @@ function createLunarSurface() {
 	
 	// Function to draw the asteroid
 	function drawAsteroid() {
-	    context.save();
- 	   context.translate(asteroid.x, asteroid.y);
+ 	   if (!asteroid) return; // Return early if the asteroid is not initialized
+
+ 	   context.save();
+  	  context.translate(asteroid.x, asteroid.y);
  	   context.rotate(Math.atan2(asteroid.vy, asteroid.vx));
+   	 context.scale(0.5, 0.5); // Scale the asteroid to half its size
   	  context.drawImage(asteroidImg, -asteroidImg.width / 2, -asteroidImg.height / 2);
-  	  context.restore();
+   	 context.restore();
 	}
 
 
@@ -776,7 +783,6 @@ function getTerrainHeightAt(x) {
 
 
         // Initialize the game and start the main loop
-	let asteroid = null;    
         createStars();
         createLunarSurface();
         setEarthPosition(); // Set initial position for Earth
