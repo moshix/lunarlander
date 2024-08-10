@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.23</div> <!-- version number -->
+        <div>Version: 1.22</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -111,9 +111,8 @@ int main() {
 	// v 1.20 asteroids!
         // v 1.21 powered descent Houston checklist go/nogo
 	// v 1.22 improve accuracy of terrain determination of lander at touch down
-	// v 1.23 make asteroid behavior more random for more run gameplay
 
-        const versionNumber = "1.23";
+        const versionNumber = "1.22";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -217,13 +216,7 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
         let landingMetrics = "";
 	let rocketSoundTimeout;
 
-	let asteroid = {
-   		 x: 0,
-   		 y: 0,
-   		 vx: 0,
-   		 vy: 0,
-   		 angle: 0 // Angle of descent
-	};
+	let asteroid = null;
 	let asteroidSpawnTimeout;
 
 
@@ -281,42 +274,6 @@ function createLunarSurface() {
     }
 }
 
-
-	function initializeAsteroid() {
-	    asteroid = {
-	        x: Math.random() * canvas.width, // Random starting x position within canvas width
-	        y: -50, // Start slightly above the canvas
-	        vx: 0,
-	        vy: 0,
- 	       angle: 0 // Angle of descent
-	    };
-
-	    // Ensure the angle is always downward, limit angle range to downward directions
- 	   const angleRange = [105, 255]; // Angles between 105° and 255° ensure downward motion
- 	   asteroid.angle = (Math.random() * (angleRange[1] - angleRange[0])) + angleRange[0];
-	
-	    // Convert angle to radians and calculate velocity components
- 	   const angleInRadians = asteroid.angle * Math.PI / 180;
- 	   const speed = Math.random() * 2 + 2; // Random speed between 2 and 4 units
- 	   asteroid.vx = Math.cos(angleInRadians) * speed;
- 	   asteroid.vy = Math.sin(angleInRadians) * speed;
-
-  	  console.log(`Asteroid initialized at (${asteroid.x}, ${asteroid.y}) with angle ${asteroid.angle}°`);
-	}
-
-
-    	// Function to update the asteroid's position
-	function updateAsteroid() {
-  	  asteroid.x += asteroid.vx;
-   	 asteroid.y += asteroid.vy;
-
-  	  // Reset the asteroid if it goes off the bottom or sides of the screen
-  	  if (asteroid.y > canvas.height || asteroid.x < -50 || asteroid.x > canvas.width + 50) {
-   	     initializeAsteroid();
-  	  }
-	}
-	    
-	    
 	// Function to spawn an asteroid at a random time
 	function spawnAsteroid() {
 	    if (!asteroid) { // Only spawn a new asteroid if there isn't one already
@@ -336,7 +293,7 @@ function createLunarSurface() {
 	    }
 	
 	    // Schedule the next asteroid spawn
-	    asteroidSpawnTimeout = setTimeout(spawnAsteroid, Math.random() * 1000 + 400);
+	    asteroidSpawnTimeout = setTimeout(spawnAsteroid, Math.random() * 5000 + 5000);
 	}
 
 
@@ -371,16 +328,10 @@ function createLunarSurface() {
 	
 	// Function to draw the asteroid
 	function drawAsteroid() {
- 	   if (!asteroid) return; // Return early if the asteroid is not initialized
-
- 	   context.save();
-  	  context.translate(asteroid.x, asteroid.y);
- 	   context.rotate(Math.atan2(asteroid.vy, asteroid.vx));
-   	 context.scale(0.5, 0.5); // Scale the asteroid to half its size
-  	  context.drawImage(asteroidImg, -asteroidImg.width / 2, -asteroidImg.height / 2);
-   	 context.restore();
+	    if (asteroid) {
+	        context.drawImage(asteroidImg, asteroid.x, asteroid.y, asteroid.width, asteroid.height);
+	    }
 	}
-
 
 
 	    // Reload the lander image to reset its state
@@ -676,9 +627,7 @@ function getTerrainHeightAt(x) {
             if (!paused && !showingBossScreen) {
                 updateLander();
 		spawnAsteroid(); // Start spawning asteroids    
-	        //moveAsteroid();
-		updateAsteroid();
-		drawAsteroid();    
+	        moveAsteroid();
             }
             draw();
             requestAnimationFrame(gameLoop);
@@ -786,8 +735,7 @@ function getTerrainHeightAt(x) {
         createStars();
         createLunarSurface();
         setEarthPosition(); // Set initial position for Earth
-	
-	initializeAsteroid(); // Call the initialization function at the start 
+	  
         gameLoop();
     </script>
 </body>
