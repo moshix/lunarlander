@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.21</div> <!-- version number -->
+        <div>Version: 1.22</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -71,7 +71,7 @@
 int main() {
     int i;
     for (i = 0; i &lt; 10; i++) {
-        printf("I love my boss so much! \n");
+        printf("I love my boss so so much! \n");
     }
     return 0;
 }</pre>
@@ -110,8 +110,9 @@ int main() {
 	// v 1.19 craters!
 	// v 1.20 asteroids!
         // v 1.21 powered descent Houston checklist go/nogo
+	// v 1.22 improve accuracy of terrain determination of lander at touch down
 
-        const versionNumber = "1.21";
+        const versionNumber = "1.22";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -367,21 +368,40 @@ function drawLunarSurface() {
     context.fill();
 }
 
-// Get the height of the lunar surface at a specific x position
+
 function getTerrainHeightAt(x) {
+    // If the terrain is empty, return the base height
+    if (lunarSurface.length === 0) {
+        return canvas.height - surfaceHeight;
+    }
+
+    // Find the segments on the left and right of the given x position
+    let leftSegment = null;
+    let rightSegment = null;
+
     for (let i = 0; i < lunarSurface.length - 1; i++) {
-        const segment = lunarSurface[i];
-        const nextSegment = lunarSurface[i + 1];
-        
-        if (x >= segment.x && x <= segment.x + segment.width) {
-            // Linear interpolation to find the y position
-            const t = (x - segment.x) / segment.width;
-            return segment.height * (1 - t) + nextSegment.height * t;
+        if (x >= lunarSurface[i].x && x <= lunarSurface[i + 1].x) {
+            leftSegment = lunarSurface[i];
+            rightSegment = lunarSurface[i + 1];
+            break;
         }
     }
-    return 0; // Default height if out of bounds
-}
 
+    // If we found a valid segment
+    if (leftSegment && rightSegment) {
+        // Calculate the interpolation factor
+        const t = (x - leftSegment.x) / (rightSegment.x - leftSegment.x);
+
+        // Linearly interpolate the height between the two points
+        const interpolatedHeight = (1 - t) * (canvas.height - surfaceHeight - leftSegment.peakHeight) +
+                                    t * (canvas.height - surfaceHeight - rightSegment.peakHeight);
+
+        return interpolatedHeight;
+    }
+
+    // If no valid segments were found, return the base height
+    return canvas.height - surfaceHeight;
+}
 
 
         // Create static stars in the background
