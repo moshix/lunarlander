@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.21</div> <!-- version number -->
+        <div>Version: 1.22</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -110,8 +110,9 @@ int main() {
 	// v 1.19 craters!
 	// v 1.20 asteroids!
         // v 1.21 powered descent Houston checklist go/nogo
+	// v 1.22 random starting vertical height for asteroid
 
-        const versionNumber = "1.21";
+        const versionNumber = "1.22";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -277,7 +278,7 @@ function createLunarSurface() {
 	function spawnAsteroid() {
 	    if (!asteroid) { // Only spawn a new asteroid if there isn't one already
 	        const startX = Math.random() < 0.5 ? 0 : canvas.width;
-	        const startY = 0;
+	        const startY = Math.random() * (canvas.height / 2);
 	        const targetX = startX === 0 ? canvas.width : 0;
 	        const targetY = canvas.height;
 	
