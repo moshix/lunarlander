@@ -498,7 +498,7 @@ function getTerrainHeightAt(x) {
                             crashSound.volume = 0.4;
                             crashSound.play();
                           }
-                    } else if (Math.abs(landingVerticalSpeed) > 2.5 || Math.abs(landingHorizontalSpeed) > 2) {
+                    } else if (Math.abs(landingVerticalSpeed) > 2.6 || Math.abs(landingHorizontalSpeed) > 2) {
                         message = "You crashed because of vertical or lateral speed"
                         lander.crashed = true;
                         if (crashSoundLoaded) {
