@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.23</div> <!-- version number -->
+        <div>Version: 1.24</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -485,7 +485,7 @@ function getTerrainHeightAt(x) {
                 const landingFuelRemaining = fuel;
 		    
 		// points is ( max landing speed of 2.5 - real landing speed ) * fuel remaining    
-		const points = ~~((2.5 - landingVerticalSpeed) *  landingFuelRemaining);    
+		const points = ~~(((2.5 - landingVerticalSpeed) *  landingFuelRemaining * 100));    
 
                 if (!landed) {
                     landed = true;
