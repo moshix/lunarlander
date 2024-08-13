@@ -572,14 +572,14 @@ function getTerrainHeightAt(x) {
             }
         
             // Show "muted" message if the game is muted
-            if (mute && !showingBossScreen) {
+            if (!mute && !showingBossScreen) {
                 context.fillStyle = 'white';
                 context.font = '30px Arial';
                 context.textAlign = 'center';
                 context.fillText("Muted", canvas.width / 2, canvas.height / 2 - 280);
             }
 
-         if (!mute && !showingBossScreen) {
+         if (mute && !showingBossScreen) {
                 context.fillStyle = 'white';
                 context.font = '30px Arial';
                 context.textAlign = 'center';
