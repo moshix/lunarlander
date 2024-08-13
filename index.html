@@ -486,10 +486,10 @@ function getTerrainHeightAt(x) {
                 // Store the metrics at the time of landing, so they don't overwrite
                 const landingVerticalSpeed = lander.vy;
                 const landingHorizontalSpeed = lander.vx;
-                const landingFuelRemaining = fuel;
+                const landingFuelRemaining = Math.abs(fuel);
 		    
 		// points is ( max landing speed of 2.5 - real landing speed ) * fuel remaining    
-		const points = ~~(((2.5 - landingVerticalSpeed) *  landingFuelRemaining * 100));    
+		const points = ~~(((2.5 - landingVerticalSpeed) *  (landingFuelRemaining+1) * 100));    
 
                 if (!landed) {
                     landed = true;
