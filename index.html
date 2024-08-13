@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.24</div> <!-- version number -->
+        <div>Version: 1.25</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -61,6 +61,7 @@
         <p style="color: green;">P: Pause/Unpause</p>
         <p style="color: orange;">B: Boss Key</p>
         <p style="color: purple;">R: Restart Game</p>
+        <p style="color: pink;">M: Mute/unmute  all sounds</p>
         <p style="color: cyan;">No landing on craters</p> 
         <p style="color: red;">Landing speed < 2.5 m/s</p> 
         <p style="color: magenta;">(c) 2024 hotdog studios</p>
@@ -114,8 +115,9 @@ int main() {
 	// v 1.23 no asteroid collision once landed (it's annoying)
 	// v 1.23.1 visual fixing 
 	// v 1.24 go/no-go checklist audio and points system
+	// v 1.25 mute all game sounds
 
-        const versionNumber = "1.24";
+        const versionNumber = "1.25";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -202,13 +204,15 @@ int main() {
 	};
 gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
 
-
+        // mute false or true
+	let mute = false; // sound is on by default
+	
 	    
         // ------------ Define game constants --------------------
-        const gravity = 0.043; // moon gravity should be 0.05....
+        const gravity = 0.042; // moon gravity should be 0.05....
         const thrustPower = -0.13; // changed from 0.15
         const lateralThrustPower = 0.1; // Thrust for lateral movement
-        const fuelConsumptionRate = 0.32; // 
+        const fuelConsumptionRate = 0.31; // 
         const initialFuel = 60; // starting fuel, half the previous amount
         const landerSize = 0.350;
         let fuel = initialFuel;
@@ -314,7 +318,7 @@ function createLunarSurface() {
 	            asteroid.y + asteroid.height > lander.y - landerImg.height * landerSize / 2
 	        ) {
 	   	    lander.crashed = true;
-                    if (crashSoundLoaded) {
+                    if (crashSoundLoaded && mute) {
                         crashSound.volume = 0.4;
                         crashSound.play();
                     }
@@ -500,20 +504,20 @@ function getTerrainHeightAt(x) {
                     if (lander.y > landerTerrainY || isOnHill) {
                         message = "You crashed into a lunar crater"
                         lander.crashed = true;
-                        if (crashSoundLoaded) {
+                        if (crashSoundLoaded && mute) {
                             crashSound.volume = 0.4;
                             crashSound.play();
                           }
                     } else if (Math.abs(landingVerticalSpeed) > 2.6 || Math.abs(landingHorizontalSpeed) > 2) {
                         message = "You crashed because of vertical or lateral speed"
                         lander.crashed = true;
-                        if (crashSoundLoaded) {
+                        if (crashSoundLoaded && mute) {
                                 crashSound.volume = 0.4;
                                 crashSound.play();
                          }
                     } else {
                         message = "  Successful Landing!";
-                        if (eaglelandedsoundLoaded) {
+                        if (eaglelandedsoundLoaded && mute) {
                             eaglelanded.volume = 0.2;
                             eaglelanded.play();
                           }
@@ -566,7 +570,26 @@ function getTerrainHeightAt(x) {
                 context.textAlign = 'center';
                 context.fillText("Paused", canvas.width / 2, canvas.height / 2 - 50);
             }
+        
+            // Show "muted" message if the game is muted
+            if (mute && !showingBossScreen) {
+                context.fillStyle = 'white';
+                context.font = '30px Arial';
+                context.textAlign = 'center';
+                context.fillText("Muted", canvas.width / 2, canvas.height / 2 - 280);
+            }
+
+         if (!mute && !showingBossScreen) {
+                context.fillStyle = 'white';
+                context.font = '30px Arial';
+                context.textAlign = 'center';
+                context.fillText("     ", canvas.width / 2, canvas.height / 2 - 280);
+            }
+
         }
+
+
+
 
         // Draw the descent indicator on the right side
         function drawDescentIndicator() {
@@ -637,7 +660,7 @@ function getTerrainHeightAt(x) {
                     case 'ArrowLeft':
                     case 'ArrowRight':
                         // Play the rocket sound for 0.3 seconds if not already playing
-                        if (!isRocketSoundPlaying && rocketSoundLoaded) {
+                        if (!isRocketSoundPlaying && rocketSoundLoaded && mute) {
                             isRocketSoundPlaying = true;
                             rocketSound.currentTime = 0; // Restart the sound
                             rocketSound.volume = 0.9;
@@ -662,6 +685,11 @@ function getTerrainHeightAt(x) {
             }
 
             switch (e.key) {
+	        case 'M':
+		case 'm':
+		    mute = !mute;
+		    // console.log('Mute status: ',mute);
+		    break;			
                 case 'P':
                 case 'p':
                     paused = !paused;
@@ -686,7 +714,7 @@ function getTerrainHeightAt(x) {
 	    
         function conditionalGonogo(){
            // Conditionally play the gonogo sound 1 in 3 times
-    	   if (gonogoSoundLoaded && Math.random() < 1/3) {
+    	   if (gonogoSoundLoaded && Math.random() < 1/3 && mute) {
         	gonogoSound.play();
 	   }
 	}
