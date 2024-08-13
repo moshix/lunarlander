@@ -689,7 +689,8 @@ function getTerrainHeightAt(x) {
 	    
         // Restart the game
         function restartGame() {
-            fuel = initialFuel;
+            conditionalGonogo()
+	    fuel = initialFuel;
             landed = false;
             message = "";
             landingMetrics = "";
