@@ -113,8 +113,9 @@ int main() {
 	// v 1.22 random starting vertical height for asteroid
 	// v 1.23 no asteroid collision once landed (it's annoying)
 	// v 1.23.1 visual fixing 
+	// v 1.24 go/no-go checklist audio and points system
 
-        const versionNumber = "1.23.1";
+        const versionNumber = "1.24";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -482,6 +483,9 @@ function getTerrainHeightAt(x) {
                 const landingVerticalSpeed = lander.vy;
                 const landingHorizontalSpeed = lander.vx;
                 const landingFuelRemaining = fuel;
+		    
+		// points is ( max landing speed of 2.5 - real landing speed ) * fuel remaining    
+		const points = ~~((2.5 - landingVerticalSpeed) *  landingFuelRemaining);    
 
                 if (!landed) {
                     landed = true;
@@ -520,7 +524,8 @@ function getTerrainHeightAt(x) {
                     landingMetrics = `
                         Horizontal Speed: ${landingHorizontalSpeed.toFixed(2)} m/s\n
                         Vertical Speed: ${landingVerticalSpeed.toFixed(2)} m/s\n
-                        Fuel Remaining: ${landingFuelRemaining.toFixed(2)} units
+                        Fuel Remaining: ${landingFuelRemaining.toFixed(2)} units \n
+			Points: ${points}
                     `;
                 }
 
