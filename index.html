@@ -304,7 +304,7 @@ function createLunarSurface() {
 	        asteroid.y += asteroid.vy;  
 	
 	        // Check for collision with the lander
-	        if (
+	        if ( !landed && 
 	            asteroid.x < lander.x + landerImg.width * landerSize / 2 &&
 	            asteroid.x + asteroid.width > lander.x - landerImg.width * landerSize / 2 &&
 	            asteroid.y < lander.y + landerImg.height * landerSize / 2 &&
