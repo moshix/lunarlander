@@ -112,8 +112,9 @@ int main() {
         // v 1.21 powered descent Houston checklist go/nogo
 	// v 1.22 random starting vertical height for asteroid
 	// v 1.23 no asteroid collision once landed (it's annoying)
+	// v 1.23.1 visual fixing 
 
-        const versionNumber = "1.23";
+        const versionNumber = "1.23.1";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -542,7 +543,7 @@ function getTerrainHeightAt(x) {
                 context.fillStyle = message === "Successful Landing!" ? 'yellow' : 'orange';
                 context.font = '30px Arial';
                 context.textAlign = 'center';
-                context.fillText(message, canvas.width / 2 - 20, canvas.height / 2);
+                context.fillText(message, canvas.width / 2 - 23, canvas.height / 2);
 
                 context.font = '20px Arial';
                 context.textAlign = 'left';
