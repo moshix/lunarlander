@@ -1,6 +1,6 @@
-# Lunar Lander
+# Lunar Lander/370
 
-A lunar lander implementation for MVS 3.8 or any other web server. All you need is a webserver and a browser.   
+A lunar lander implementation for MVS 3.8 or any other web server out there. All you need is a webserver and a browser... or an IBM mainframe with 1977-era MVS 3.8...   
 
 The best Lunar Lander implementation is arguably the one for the DEC GT40 device (see here: (https://www.youtube.com/watch?v=G4lPE5Nytfc) .)  
 
