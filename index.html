@@ -489,8 +489,9 @@ function getTerrainHeightAt(x) {
                 const landingFuelRemaining = Math.abs(fuel);
 		    
 		// points is ( max landing speed of 2.5 - real landing speed ) * fuel remaining -- absolute values   
-		const points = ~~(((2.5 -  Math.abs(landingVerticalSpeed)) *  (landingFuelRemaining+1) * 100));    
-
+		const npoints = ~~(((2.5 -  Math.abs(landingVerticalSpeed)) *  (landingFuelRemaining+1) * 100));    
+                const points = Math.abs(npoints);
+		    
                 if (!landed) {
                     landed = true;
 		// Determine the terrain height at the lander's x position
