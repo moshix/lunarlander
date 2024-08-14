@@ -222,6 +222,8 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
         let message = "";
         let landingMetrics = "";
 	let rocketSoundTimeout;
+	let points = 0;
+	let npoints = 0;
 
 	let asteroid = null;
 	let asteroidSpawnTimeout;
@@ -323,6 +325,7 @@ function createLunarSurface() {
                         crashSound.play();
                     }
 	            landed = true;
+		     points = 0;	
 	            //asteroid = null; // Remove the asteroid
 	        }
 	
@@ -489,8 +492,8 @@ function getTerrainHeightAt(x) {
                 const landingFuelRemaining = Math.abs(fuel);
 		    
 		// points is ( max landing speed of 2.5 - real landing speed ) * fuel remaining -- absolute values   
-		const npoints = ~~(((2.5 -  Math.abs(landingVerticalSpeed)) *  (landingFuelRemaining+1) * 100));    
-                const points = Math.abs(npoints);
+		npoints = ~~(((2.5 -  Math.abs(landingVerticalSpeed)) *  (landingFuelRemaining+1) * 100));    
+                points = Math.abs(npoints);
 		    
                 if (!landed) {
                     landed = true;
@@ -505,6 +508,7 @@ function getTerrainHeightAt(x) {
                     if (lander.y > landerTerrainY || isOnHill) {
                         message = "You crashed into a lunar crater"
                         lander.crashed = true;
+			points = 0;    
                         if (crashSoundLoaded && mute) {
                             crashSound.volume = 0.4;
                             crashSound.play();
@@ -512,6 +516,7 @@ function getTerrainHeightAt(x) {
                     } else if (Math.abs(landingVerticalSpeed) > 2.6 || Math.abs(landingHorizontalSpeed) > 2) {
                         message = "You crashed because of vertical or lateral speed"
                         lander.crashed = true;
+			points = 0;    
                         if (crashSoundLoaded && mute) {
                                 crashSound.volume = 0.4;
                                 crashSound.play();
