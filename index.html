@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.25</div> <!-- version number -->
+        <div>Version: 1.26</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -116,8 +116,9 @@ int main() {
 	// v 1.23.1 visual fixing 
 	// v 1.24 go/no-go checklist audio and points system
 	// v 1.25 mute all game sounds
+	// v 1.26 lunar gravity fix
 
-        const versionNumber = "1.25";
+        const versionNumber = "1.26";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -209,11 +210,11 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
 	
 	    
         // ------------ Define game constants --------------------
-        const gravity = 0.042; // moon gravity should be 0.05....
+        const gravity = 0.032; // moon gravity should be 0.05....
         const thrustPower = -0.13; // changed from 0.15
         const lateralThrustPower = 0.1; // Thrust for lateral movement
         const fuelConsumptionRate = 0.31; // 
-        const initialFuel = 60; // starting fuel, half the previous amount
+        const initialFuel = 65; // starting fuel, half the previous amount
         const landerSize = 0.350;
         let fuel = initialFuel;
         let landed = false;
