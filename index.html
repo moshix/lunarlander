@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.26</div> <!-- version number -->
+        <div>Version: 1.27</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -117,8 +117,9 @@ int main() {
 	// v 1.24 go/no-go checklist audio and points system
 	// v 1.25 mute all game sounds
 	// v 1.26 lunar gravity fix
+	// v 1.27 command module orbiting
 
-        const versionNumber = "1.26";
+        const versionNumber = "1.27";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -204,6 +205,31 @@ int main() {
 	    }
 	};
 gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
+        
+	// load command module orbiting svg and sound
+	// ied is command module objects 
+	const iedGraphic = new Image();
+        iedGraphic.src = 'ied.svg'; // Path to hamburger
+        
+        iedGraphic.onload = function() {
+                    console.log('IED loaded');
+        };
+        
+        iedGraphic.onerror = function() {
+                    console.error('Error loading IED  graphic');
+        };
+        let iedWidth = 50 * 0.8; 
+        let iedHeight = 50 * 0.8;
+        let iedX, iedY;
+        let iedSpeed = 3;
+        let iedDirection = 1; // 1 for right, -1 for left
+        let iedActive = false;
+        let lastIedTime = 0;
+        const iedMinInterval = 2000; // Minimum interval in milliseconds (30 seconds)
+
+
+
+
 
         // mute false or true
 	let mute = true; // sound is on by default
@@ -256,33 +282,33 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
         // Starfield data
         const stars = [];
 
-// Create a simple lunar surface with gently sloping hills and at least 50% flat surfaces
-function createLunarSurface() {
-    lunarSurface = [];
-    let x = 0;
-    let totalWidth = 0;
-    let flatSurfaceWidth = 0;
-
-    while (x < canvas.width) {
-        const width = Math.random() * 50 + 50;
-        let height = Math.random() * 50 + 10; // Gentle hills
-        let nextHeight = Math.random() * 50 + 10;
-
-        if (Math.random() < 0.5) { // 50% chance for flat surface
-            height = nextHeight = 0;
-            flatSurfaceWidth += width;
+        // Create a simple lunar surface with gently sloping hills and at least 50% flat surfaces
+        function createLunarSurface() {
+            lunarSurface = [];
+            let x = 0;
+            let totalWidth = 0;
+            let flatSurfaceWidth = 0;
+        
+            while (x < canvas.width) {
+                const width = Math.random() * 50 + 50;
+                let height = Math.random() * 50 + 10; // Gentle hills
+                let nextHeight = Math.random() * 50 + 10;
+        
+                if (Math.random() < 0.5) { // 50% chance for flat surface
+                    height = nextHeight = 0;
+                    flatSurfaceWidth += width;
+                }
+        
+                lunarSurface.push({ x, width, height, nextHeight });
+                x += width;
+                totalWidth += width;
+            }
+        
+            // Ensure at least 50% of the surface is flat
+            if (flatSurfaceWidth < totalWidth / 2) {
+                createLunarSurface();
+            }
         }
-
-        lunarSurface.push({ x, width, height, nextHeight });
-        x += width;
-        totalWidth += width;
-    }
-
-    // Ensure at least 50% of the surface is flat
-    if (flatSurfaceWidth < totalWidth / 2) {
-        createLunarSurface();
-    }
-}
 
 	// Function to spawn an asteroid at a random time
 	function spawnAsteroid() {
@@ -359,65 +385,65 @@ function createLunarSurface() {
 
 
 	    // Draw the lunar surface on the canvas with gently sloping hills and flat surfaces
-function drawLunarSurface() {
-    context.fillStyle = 'gray';
-    context.beginPath();
-    context.moveTo(0, canvas.height - surfaceHeight);
-
-    lunarSurface.forEach((segment) => {
-        const peakY = canvas.height - surfaceHeight - segment.height;
-        const nextPeakY = canvas.height - surfaceHeight - segment.nextHeight;
-        const nextX = segment.x + segment.width;
-
-        context.lineTo(segment.x, peakY);
-        context.quadraticCurveTo(segment.x + segment.width / 2, peakY, nextX, nextPeakY);
-    });
-
-    context.lineTo(canvas.width, canvas.height);
-    context.lineTo(0, canvas.height);
-    context.closePath();
-    context.fill();
-}
-
-// Get the height of the lunar surface at a specific x position
-function getTerrainHeightAt(x) {
-    for (let i = 0; i < lunarSurface.length - 1; i++) {
-        const segment = lunarSurface[i];
-        const nextSegment = lunarSurface[i + 1];
-        
-        if (x >= segment.x && x <= segment.x + segment.width) {
-            // Linear interpolation to find the y position
-            const t = (x - segment.x) / segment.width;
-            return segment.height * (1 - t) + nextSegment.height * t;
-        }
-    }
-    return 0; // Default height if out of bounds
-}
-
-
-
-        // Create static stars in the background
-        function createStars() {
-                conditionalGonogo(); // each time we start let's randomly play go/no-go checklist 
-		for (let i = 0; i < 120; i++) {
-                stars.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * (canvas.height - surfaceHeight),
-                    radius: Math.random() * 1.5,
+           function drawLunarSurface() {
+               context.fillStyle = 'gray';
+               context.beginPath();
+               context.moveTo(0, canvas.height - surfaceHeight);
+           
+               lunarSurface.forEach((segment) => {
+                   const peakY = canvas.height - surfaceHeight - segment.height;
+                   const nextPeakY = canvas.height - surfaceHeight - segment.nextHeight;
+                   const nextX = segment.x + segment.width;
+           
+                   context.lineTo(segment.x, peakY);
+                   context.quadraticCurveTo(segment.x + segment.width / 2, peakY, nextX, nextPeakY);
+               });
+           
+               context.lineTo(canvas.width, canvas.height);
+               context.lineTo(0, canvas.height);
+               context.closePath();
+               context.fill();
+           }
+           
+           // Get the height of the lunar surface at a specific x position
+           function getTerrainHeightAt(x) {
+               for (let i = 0; i < lunarSurface.length - 1; i++) {
+                   const segment = lunarSurface[i];
+                   const nextSegment = lunarSurface[i + 1];
+                   
+                   if (x >= segment.x && x <= segment.x + segment.width) {
+                       // Linear interpolation to find the y position
+                       const t = (x - segment.x) / segment.width;
+                       return segment.height * (1 - t) + nextSegment.height * t;
+                   }
+               }
+               return 0; // Default height if out of bounds
+           }
+           
+           
+           
+                   // Create static stars in the background
+                   function createStars() {
+                           conditionalGonogo(); // each time we start let's randomly play go/no-go checklist 
+           		for (let i = 0; i < 120; i++) {
+                           stars.push({
+                               x: Math.random() * canvas.width,
+                               y: Math.random() * (canvas.height - surfaceHeight),
+                               radius: Math.random() * 1.5,
+                           });
+                       }
+                   }
+           
+            // Draw stars in the background
+            function drawStars() {
+                context.fillStyle = 'white';
+                stars.forEach((star) => {
+                    context.beginPath();
+                    context.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    context.fill();
                 });
             }
-        }
-
-        // Draw stars in the background
-        function drawStars() {
-            context.fillStyle = 'white';
-            stars.forEach((star) => {
-                context.beginPath();
-                context.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-                context.fill();
-            });
-        }
-
+    
         // Draw Earth at the stored position
         function drawEarth() {
             const earthWidth = 150; // Double the size of the previous width
@@ -595,8 +621,58 @@ function getTerrainHeightAt(x) {
 
         }
 
+        //@@@@@command module stuff @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        // IED handling (orbiting command module)
+        
+        function activateIed() {
+        
+            const currentTime = Date.now();
+            if (currentTime - lastIedTime >= iedMinInterval) {
+                iedActive = true;
+                lastIedTime = currentTime; // Update last activation time
+                iedY = canvas.height / 8; // Set Y position quarter
+                if (Math.random() < 0.5) {
+                    iedX = -iedWidth; // Start from the left
+                    iedDirection = 1;
+                } else {
+                    iedX = canvas.width; // Start from the right
+                    iedDirection = -1;
+                }
+            }
+        }
 
 
+          // graphics related to animating command module orbiting
+          function moveIed() {
+              if (iedActive) {
+                  iedX += iedSpeed * iedDirection;
+                  if (iedX > canvas.width || iedX < -iedWidth) {
+                      iedActive = false; // Deactivate the ied
+                  }
+              }
+          }
+          
+          
+          // 
+          function drawIed() {
+              if (iedActive) {
+                  //console.log('Drawing ied  at:', iedX, iedY, iedWidth, iedHeight);
+                  context.drawImage(iedGraphic, iedX, iedY, iedWidth, iedHeight);
+              }
+          }
+         // Function to play sound with limited duration
+         function playSoundWithLimit(audioElement, duration) {
+             audioElement.pause();
+             audioElement.currentTime = 0; // Reset to start
+             audioElement.play().then(() => {
+                 setTimeout(() => {
+                     audioElement.pause();
+                     audioElement.currentTime = 0; // Reset to start
+                 }, duration);
+             }).catch((error) => {
+                 console.error('Error playing audio:', error);
+             });
+         }
 
         // Draw the descent indicator on the right side
         function drawDescentIndicator() {
@@ -635,6 +711,7 @@ function getTerrainHeightAt(x) {
                 drawLander();
 		drawAsteroid(); // Draw the asteroid
                 drawMessage();
+		drawIed(); // draw the command module
                 drawDescentIndicator();
             }
         }
@@ -645,6 +722,7 @@ function getTerrainHeightAt(x) {
                 updateLander();
 		spawnAsteroid(); // Start spawning asteroids    
 	        moveAsteroid();
+	        moveIed();       // animate the command module
             }
             draw();
             requestAnimationFrame(gameLoop);
@@ -749,17 +827,21 @@ function getTerrainHeightAt(x) {
             lunarSurface = [];
             mountainZones = [];
             createLunarSurface();
+	    activateIed();  // activate the command module 
 	    }		    
+
+
             setEarthPosition(); // Set a new random position for Earth
 	    spawnAsteroid(); // Start spawning asteroids
+	    activateIed();       // draw the command module
 
-
-        // Initialize the game and start the main loop
-        createStars();
-        createLunarSurface();
-        setEarthPosition(); // Set initial position for Earth
-	  
-        gameLoop();
+           // Initialize the game and start the main loop
+           createStars();
+           createLunarSurface();
+           setEarthPosition(); // Set initial position for Earth
+	   drawIed();
+	   iedActive = true;
+           gameLoop();
     </script>
 </body>
 </html>
