@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.27</div> <!-- version number -->
+        <div>Version: 1.28</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -118,8 +118,9 @@ int main() {
 	// v 1.25 mute all game sounds
 	// v 1.26 lunar gravity fix
 	// v 1.27 command module orbiting
+	// v 1.28 command correct orbiting
 
-        const versionNumber = "1.27";
+        const versionNumber = "1.28";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -218,14 +219,14 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
         iedGraphic.onerror = function() {
                     console.error('Error loading IED  graphic');
         };
-        let iedWidth = 50 * 0.8; 
-        let iedHeight = 50 * 0.8;
+        let iedWidth = 50 * 1.0; 
+        let iedHeight = 50 * 1.0;
         let iedX, iedY;
-        let iedSpeed = 2.1;
+        let iedSpeed = 2.5;
         let iedDirection = 1; // 1 for right, -1 for left
         let iedActive = false;
         let lastIedTime = 0;
-        const iedMinInterval = 2000; // Minimum interval in milliseconds (30 seconds)
+        const iedMinInterval = 9000; // Minimum interval in milliseconds (30 seconds)
 
 
 
@@ -636,7 +637,7 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
                     iedDirection = 1;
                 } else {
                     iedX = canvas.width; // Start from the right
-                    iedDirection = -1;
+                    iedDirection = 1;
                 }
             }
         }
@@ -721,6 +722,8 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
             if (!paused && !showingBossScreen) {
                 updateLander();
 		spawnAsteroid(); // Start spawning asteroids    
+		drawIed();
+		activateIed();
 	        moveAsteroid();
 	        moveIed();       // animate the command module
             }
@@ -828,14 +831,16 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
             mountainZones = [];
             createLunarSurface();
 	    activateIed();  // activate the command module 
+	    drawIed();
+	    moveIed();
 	    }		    
 
 
+           // Initialize the game and start the main loop
             setEarthPosition(); // Set a new random position for Earth
 	    spawnAsteroid(); // Start spawning asteroids
 	    activateIed();       // draw the command module
 
-           // Initialize the game and start the main loop
            createStars();
            createLunarSurface();
            setEarthPosition(); // Set initial position for Earth
