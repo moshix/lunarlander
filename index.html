@@ -120,6 +120,7 @@ int main() {
 	// v 1.27 command module orbiting
 	// v 1.28 command correct orbiting
 	// v 1.29 ISS orbiting with correct orbital mechanics
+	// v 1.30 Sputnik flying over the horizon
 
         const versionNumber = "1.29";
 
@@ -234,8 +235,7 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
 
 	// load ISS orbiting svg and sound
 	const issGraphic = new Image();
-        issGraphic.src = 'iss.svg'; // Path to hamburger
-        
+        issGraphic.src = 'iss.svg'; // Path to ISS graphic
         issGraphic.onload = function() {
                     console.log('ISS loaded');
         };
@@ -245,7 +245,7 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
         };
         let issWidth = 50 * 0.5; 
         let issHeight = 50 * 0.5;
-        let issdX, issY;
+        let issX, issY;
         let issSpeed = 0.5;
         let issDirection = 1; // 1 for right, -1 for left
         let issActive = false;
@@ -258,6 +258,32 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
         let orbitAngle = 5; // Initial angle
 	const curveAmplitude = canvas.height / 4; // Height of the curve
 	const curveFrequency = 0.004; // Lower frequency to slow down the curve progression
+
+	// Sputnik variables ---------
+	const spuGraphic = new Image();
+        spuGraphic.src = 'sputnik.svg'; // Path to sputnik
+        
+        spuGraphic.onload = function() {
+                    console.log('Sputnik loaded');
+        };
+        
+        spuGraphic.onerror = function() {
+                    console.error('Error loading Sputnik graphic');
+        };
+        let spuWidth = 50 * 0.6; 
+        let spuHeight = 50 * 0.6;
+        //let spuX, spuY;
+        let spuSpeed = 0.4;
+        let spuDirection = 1; // 1 for right, -1 for left
+        let spuActive = false;
+        let lastSpuTime = 0;
+        const spuMinInterval = 15000;              // minimum interval
+	const spuStartX      = canvas.width - 150; // Start from the upper right corner
+        const spuStartY      = canvas.height / 2;  // Start at the top
+        const spuAmplitude   = canvas.height / 2;  // Height of the arch
+        const spuFrequency   = 0.0015;              // Frequency of the arch
+        let spuX = spuStartX;
+        let spuY = 20;
 
 
         // mute false or true
@@ -650,6 +676,71 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
 
         }
 
+
+	//########Sputnik orbitin #######################################
+	  function activateSpu() {
+            const currentTime = Date.now();
+            if (currentTime - lastSpuTime >= spuMinInterval) {
+                spuActive = true;
+                lastSpuTime = currentTime; // Update last activation time
+        
+                // Set Y position, ensure it's within the canvas height
+                //spuY = canvas.height / 1.0; // Set Y position quarter
+		console.log('Sputnick Y: ',spuY);
+                if (spuY < 0) {
+                    spuY = 0; // Prevent it from going above the canvas
+                } else if (spuY + spuHeight > canvas.height) {
+                    spuY = canvas.height - spuHeight; // Prevent it from going below the canvas
+                }
+        
+                // Determine starting X position
+                if (Math.random() < 0.5) {
+                    //spuX = -spuWidth; // Start from the left
+                    spuDirection = 1;
+                } else {
+                    //spuX = canvas.width; // Start from the right
+                    spuDirection = -1;
+                }
+        
+                // Ensure the object is fully within the canvas if necessary
+                if (spuX < 0) {
+                    spuX = 0;
+                } else if (spuX + spuWidth > canvas.width) {
+                    spuX = canvas.width - issWidth;
+                }
+            }
+        } 
+
+
+         function moveSpu() {
+             if (spuActive) {
+                 // Update the horizontal position
+                 spuX -= spuSpeed; // Move left
+         
+                 // Calculate the vertical position to create an arch
+                 spuY = spuAmplitude * Math.sin(spuFrequency * (spuStartX - spuX));
+         
+                 // Check if the object has moved out of the canvas bounds horizontally
+                 if (spuX < -spuWidth) {
+                     spuActive = false; // Deactivate the object when it leaves the canvas
+                 }
+             }
+         }
+          // draw Sputnik
+          function drawSpu() {
+              if (spuActive) {
+                  //console.log('Drawing Sputnik at:', spuX, spuY, spuWidth, spuHeight);
+                  context.drawImage(spuGraphic, spuX, spuY, spuWidth, spuHeight);
+              }
+          }
+
+	//########Sputnik orbiting #######################################
+
+
+
+
+
+
         //********ISS orbiting ********************************************
 	  function activateIss() {
             const currentTime = Date.now();
@@ -806,6 +897,7 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
                 drawMessage();
 		drawIed(); // draw the command module
 		drawIss(); // draw the ISS
+		drawSpu(); // draw the Sputnik
                 drawDescentIndicator();
             }
         }
@@ -815,13 +907,16 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
             if (!paused && !showingBossScreen) {
                 updateLander();
 		spawnAsteroid(); // Start spawning asteroids    
-		drawIed();
-		drawIss();
+		drawIed(); // draw the lunar command module
+		drawIss(); // draw the ISS
+		drawSpu(); // draw the Sputnik
 		activateIed();
 		activateIss();
+		activateSpu(); // activate the Sputnik
 	        moveAsteroid();
 	        moveIed();       // animate the command module
 	        moveIss();       // animate the ISS
+	        moveSpu();       // animate the Sputnik
             }
             draw();
             requestAnimationFrame(gameLoop);
@@ -928,10 +1023,13 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
             createLunarSurface();
 	    activateIed();  // activate the command module 
 	    activateIss();  // activate the iss
+	    activateSpu();  // activate the Sputnik
 	    drawIed();
 	    drawIss();
+	    drawSpu();
 	    moveIed();
 	    moveIss();
+	    moveSpu();
 	    }		    
 
 
@@ -940,15 +1038,17 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
 	    spawnAsteroid(); // Start spawning asteroids
 	    activateIed();       // draw the command module
 	    activateIss();       // draw the ISS 
+	    activateSpu();       // draw the Sputnik
 
-           createStars();
-           createLunarSurface();
-           setEarthPosition(); // Set initial position for Earth
-	   drawIed();
-	   drawIss();
-	   iedActive = true;
-	   issActive = true;
-           gameLoop();
+            createStars();
+            createLunarSurface();
+            setEarthPosition(); // Set initial position for Earth
+	    drawIed();
+	    drawIss();
+	    drawSpu();
+	    iedActive = true;
+	    spuActive = true;
+            gameLoop();
     </script>
 </body>
 </html>
