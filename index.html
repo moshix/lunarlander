@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.28</div> <!-- version number -->
+        <div>Version: 1.29</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -119,8 +119,9 @@ int main() {
 	// v 1.26 lunar gravity fix
 	// v 1.27 command module orbiting
 	// v 1.28 command correct orbiting
+	// v 1.29 ISS orbiting with correct orbital mechanics
 
-        const versionNumber = "1.28";
+        const versionNumber = "1.29";
 
         // Set up the canvas and drawing context
         const canvas = document.getElementById('gameCanvas');
@@ -213,11 +214,11 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
         iedGraphic.src = 'ied.svg'; // Path to hamburger
         
         iedGraphic.onload = function() {
-                    console.log('IED loaded');
+                    console.log('command module loaded');
         };
         
         iedGraphic.onerror = function() {
-                    console.error('Error loading IED  graphic');
+                    console.error('Error loading command module  graphic');
         };
         let iedWidth = 50 * 1.0; 
         let iedHeight = 50 * 1.0;
@@ -230,6 +231,33 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
 
 
 
+
+	// load ISS orbiting svg and sound
+	const issGraphic = new Image();
+        issGraphic.src = 'iss.svg'; // Path to hamburger
+        
+        issGraphic.onload = function() {
+                    console.log('ISS loaded');
+        };
+        
+        issGraphic.onerror = function() {
+                    console.error('Error loading ISS graphic');
+        };
+        let issWidth = 50 * 0.5; 
+        let issHeight = 50 * 0.5;
+        let issdX, issY;
+        let issSpeed = 0.5;
+        let issDirection = 1; // 1 for right, -1 for left
+        let issActive = false;
+        let lastIssTime = 0;
+        const issMinInterval = 19000; // Minimum interval in milliseconds (30 seconds)
+	// Define the center of the ISS orbit and the radius
+        const orbitCenterX = canvas.width / 2;
+        const orbitCenterY = canvas.height / 4;
+        const orbitRadius = 480; // Adjust the radius as needed
+        let orbitAngle = 5; // Initial angle
+	const curveAmplitude = canvas.height / 4; // Height of the curve
+	const curveFrequency = 0.004; // Lower frequency to slow down the curve progression
 
 
         // mute false or true
@@ -622,6 +650,68 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
 
         }
 
+        //********ISS orbiting ********************************************
+	  function activateIss() {
+            const currentTime = Date.now();
+            if (currentTime - lastIssTime >= issMinInterval) {
+                issActive = true;
+                lastIssTime = currentTime; // Update last activation time
+        
+                // Set Y position, ensure it's within the canvas height
+                issY = canvas.height / 4; // Set Y position quarter
+                if (issY < 0) {
+                    issY = 0; // Prevent it from going above the canvas
+                } else if (issY + issHeight > canvas.height) {
+                    issY = canvas.height - issHeight; // Prevent it from going below the canvas
+                }
+        
+                // Determine starting X position
+                if (Math.random() < 0.5) {
+                    issX = -issWidth; // Start from the left
+                    issDirection = 1;
+                } else {
+                    issX = canvas.width; // Start from the right
+                    issDirection = -1;
+                }
+        
+                // Ensure the object is fully within the canvas if necessary
+                if (issX < 0) {
+                    issX = 0;
+                } else if (issX + issWidth > canvas.width) {
+                    issX = canvas.width - issWidth;
+                }
+            }
+        } 
+
+          // graphics related to animating ISS
+
+	    function moveIss() {
+              if (issActive) {
+                  // Update the horizontal position
+                  issX += issSpeed * issDirection;
+          
+                  // Calculate the vertical position to create a curve
+                  issY = (canvas.height / 2) + curveAmplitude * Math.sin(curveFrequency * issX);
+          
+                  // Check if the object has moved out of the canvas bounds horizontally
+                  if (issX > canvas.width || issX < -issWidth) {
+                      issActive = false; // Deactivate the ISS
+                  }
+              }
+          }
+
+          // draw ISS  module 
+          function drawIss() {
+              if (issActive) {
+                  //console.log('Drawing ISS  at:', issX, issY, issWidth, issHeight);
+                  context.drawImage(issGraphic, issX, issY, issWidth, issHeight);
+              }
+          }
+        //*******end of *ISS orbiting ********************************************
+
+
+
+
         //@@@@@command module stuff @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // IED handling (orbiting command module)
         
@@ -654,13 +744,15 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
           }
           
           
-          // 
+          // draw command module 
           function drawIed() {
               if (iedActive) {
                   //console.log('Drawing ied  at:', iedX, iedY, iedWidth, iedHeight);
                   context.drawImage(iedGraphic, iedX, iedY, iedWidth, iedHeight);
               }
           }
+
+
          // Function to play sound with limited duration
          function playSoundWithLimit(audioElement, duration) {
              audioElement.pause();
@@ -713,6 +805,7 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
 		drawAsteroid(); // Draw the asteroid
                 drawMessage();
 		drawIed(); // draw the command module
+		drawIss(); // draw the ISS
                 drawDescentIndicator();
             }
         }
@@ -723,9 +816,12 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
                 updateLander();
 		spawnAsteroid(); // Start spawning asteroids    
 		drawIed();
+		drawIss();
 		activateIed();
+		activateIss();
 	        moveAsteroid();
 	        moveIed();       // animate the command module
+	        moveIss();       // animate the ISS
             }
             draw();
             requestAnimationFrame(gameLoop);
@@ -831,8 +927,11 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
             mountainZones = [];
             createLunarSurface();
 	    activateIed();  // activate the command module 
+	    activateIss();  // activate the iss
 	    drawIed();
+	    drawIss();
 	    moveIed();
+	    moveIss();
 	    }		    
 
 
@@ -840,12 +939,15 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
             setEarthPosition(); // Set a new random position for Earth
 	    spawnAsteroid(); // Start spawning asteroids
 	    activateIed();       // draw the command module
+	    activateIss();       // draw the ISS 
 
            createStars();
            createLunarSurface();
            setEarthPosition(); // Set initial position for Earth
 	   drawIed();
+	   drawIss();
 	   iedActive = true;
+	   issActive = true;
            gameLoop();
     </script>
 </body>
