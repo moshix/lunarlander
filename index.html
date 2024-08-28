@@ -1022,6 +1022,8 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
             // Clear and recreate the stars
             stars.length = 0; // Clear the existing stars array
             createStars();    // Recreate the stars
+            // Reposition the Earth image
+            setEarthPosition(); // Reposition Earth
 		
             lunarSurface = [];
             mountainZones = [];
