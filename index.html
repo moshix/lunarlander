@@ -337,7 +337,7 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
         // Starfield data
         const stars = [];
 
-        // Create a simple lunar surface with gently sloping hills and at least 50% flat surfaces
+        // Create a simple lunar surface with gently sloping hills and at least 60% flat surfaces
         function createLunarSurface() {
             lunarSurface = [];
             let x = 0;
@@ -346,8 +346,8 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
         
             while (x < canvas.width) {
                 const width = Math.random() * 50 + 50;
-                let height = Math.random() * 50 + 10; // Gentle hills
-                let nextHeight = Math.random() * 50 + 10;
+                let height = Math.random() * 50 + 5; // Gentle hills
+                let nextHeight = Math.random() * 50 + 5;
         
                 if (Math.random() < 0.6) { // 50% chance for flat surface
                     height = nextHeight = 0;
