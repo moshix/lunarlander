@@ -1018,6 +1018,11 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
 		
 	     // Reset the lander image to its initial state
     	    reloadImages();
+		
+            // Clear and recreate the stars
+            stars.length = 0; // Clear the existing stars array
+            createStars();    // Recreate the stars
+		
             lunarSurface = [];
             mountainZones = [];
             createLunarSurface();
