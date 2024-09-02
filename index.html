@@ -677,7 +677,7 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
         }
 
 
-	//########Sputnik orbitin #######################################
+	//########Sputnik orbiting #######################################
 	  function activateSpu() {
             const currentTime = Date.now();
             if (currentTime - lastSpuTime >= spuMinInterval) {
@@ -685,8 +685,8 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
                 lastSpuTime = currentTime; // Update last activation time
         
                 // Set Y position, ensure it's within the canvas height
-                //spuY = canvas.height / 1.0; // Set Y position quarter
-		console.log('Sputnick Y: ',spuY);
+                spuY = canvas.height / 3.0; // Set Y position quarter
+		//console.log('Sputnick Y: ',spuY);
                 if (spuY < 0) {
                     spuY = 0; // Prevent it from going above the canvas
                 } else if (spuY + spuHeight > canvas.height) {
