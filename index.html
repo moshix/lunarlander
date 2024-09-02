@@ -273,7 +273,7 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
         let spuWidth = 50 * 0.6; 
         let spuHeight = 50 * 0.6;
         //let spuX, spuY;
-        let spuSpeed = 0.4;
+        let spuSpeed = 0.6;
         let spuDirection = 1; // 1 for right, -1 for left
         let spuActive = false;
         let lastSpuTime = 0;
@@ -281,7 +281,7 @@ gonogoSound.onerror = () => console.error('Error loading gonogo.mp3.');
 	const spuStartX      = canvas.width - 150; // Start from the upper right corner
         const spuStartY      = canvas.height / 2;  // Start at the top
         const spuAmplitude   = canvas.height / 2;  // Height of the arch
-        const spuFrequency   = 0.0015;              // Frequency of the arch
+        const spuFrequency   = 0.0025;              // Frequency of the arch
         let spuX = spuStartX;
         let spuY = 20;
 
