@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.32</div> <!-- version number -->
+        <div>Version: 1.33</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -62,7 +62,7 @@
         <p style="color: orange;">B: Boss Key</p>
         <p style="color: purple;">R: Restart Game</p>
         <p style="color: pink;">M: Mute/unmute</p>
-        <p style="color: cyan;">No landing on craters</p> 
+        <p style="color: cyan;">No landing on, or near, craters</p> 
         <p style="color: red;">Landing speed < 2.5 m/s</p> 
         <p style="color: magenta;">(c) 2024 hotdog studios</p>
     </div>
@@ -123,8 +123,9 @@ int main() {
  // v 1.30 Sputnik flying over the horizon
  // v 1.31 Fixed
  // v 1.32 Saturn
+ // v 1.33 Sputnik becomes Laica so all spuXXX is Laica now
 
- const versionNumber = "1.32";
+ const versionNumber = "1.33";
 
  // Set up the canvas and drawing context
  const canvas = document.getElementById('gameCanvas');
