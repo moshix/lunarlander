@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.30</div> <!-- version number -->
+        <div>Version: 1.32</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -121,8 +121,10 @@ int main() {
  // v 1.28 command correct orbiting
  // v 1.29 ISS orbiting with correct orbital mechanics
  // v 1.30 Sputnik flying over the horizon
+ // v 1.31 Fixed
+ // v 1.32 Saturn
 
- const versionNumber = "1.30";
+ const versionNumber = "1.32";
 
  // Set up the canvas and drawing context
  const canvas = document.getElementById('gameCanvas');
@@ -284,8 +286,39 @@ int main() {
  const spuFrequency = 0.0025; // Frequency of the arch
  let spuX = spuStartX;
  let spuY = 20;
+ // ---------------------------------------------------
 
 
+ // Planet 1 (saturn)
+ const pl1Graphic = new Image();
+ pl1Graphic.src = 'planet1.svg'; // Path to planet saturn
+
+ pl1Graphic.onload = function() {
+     console.log('Planet1 (Saturn)  loaded');
+ };
+
+ pl1Graphic.onerror = function() {
+     console.error('Error loading planet1 (Saturn) graphic');
+ };
+ let pl1Width = 50 * 1.1;
+ let pl1Height = 50 * 1.2;
+ //let spuX, spuY;
+ let pl1Speed = 0.13;
+ let pl1Direction = -1; // 1 for right, -1 for left
+ let pl1Active = false;
+ let lastPl1Time = 0;
+ const pl1MinInterval = 99000; // minimum interval
+ const pl1StartX = 520; // Start from the upper right corner
+ const pl1StartY = canvas.height +500; // Start at the top
+ const pl1Amplitude = canvas.height / 3; // Height of the arch
+ const pl1Frequency = 0.0035; // Frequency of the arch
+ let pl1X = pl1StartX;
+ let pl1Y = pl1StartY;
+
+	    
+
+
+ // --------- other variables for the game  --------------//
  // mute false or true
  let mute = true; // sound is on by default
 
@@ -748,8 +781,64 @@ int main() {
      }
  }
 
- //########Sputnik orbiting #######################################
+ //########end of Sputnik orbiting #######################################
 
+
+ //^^^^^^^^^^ PLANET1 (saturn) orbiting ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+function activatePl1() {
+    const currentTime = Date.now();
+    if (currentTime - lastPl1Time >= pl1MinInterval) {
+        pl1Active = true;
+        lastPl1Time = currentTime; // Update last activation time
+
+        // Initialize position
+        pl1X = -pl1Width; // Start from the left
+        pl1Y = canvas.height - 100; // Start from lower part of the canvas
+
+        // Move direction
+        pl1Direction = 1; // Move to the right
+
+        // Ensure the object is fully within the canvas if necessary
+        if (pl1X < 0) {
+            pl1X = 0;
+        }
+        else if (pl1X + pl1Width > canvas.width) {
+            pl1X = canvas.width - pl1Width;
+        }
+    }
+}
+
+
+ function movePl1() {
+    if (!pl1Active) return;
+
+    // Update position
+    pl1X += pl1Speed; // Move horizontally
+    // Calculate Y position using a parabolic equation
+    const maxY = canvas.height / 4; // Peak of the parabola
+    const normalizedX = pl1X / canvas.width;
+    pl1Y = canvas.height - 100 - (maxY * (4 * normalizedX * (1 - normalizedX))); // Parabolic equation
+
+    // Draw the object
+    context.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+    context.drawImage(pl1Graphic, pl1X, pl1Y, pl1Width, pl1Height); // Draw the object
+
+    // Check if the object has moved off the canvas
+    if (pl1X > canvas.width) {
+        pl1Active = false; // Deactivate the object
+    }
+}
+
+
+
+ // draw Saturn
+ function drawPl1() {
+     if (pl1Active) {
+         //console.log('Drawing Saturn  at:', pl1X, pl1Y, pl1Width, pl1Height);
+         context.drawImage(pl1Graphic, pl1X, pl1Y, pl1Width, pl1Height);
+     }
+ }
+// ^^^^^^^^ end of saturn pl1 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 
@@ -915,6 +1004,7 @@ int main() {
          drawIed(); // draw the command module
          drawIss(); // draw the ISS
          drawSpu(); // draw the Sputnik
+         drawPl1(); // draw the Saturn 
          drawDescentIndicator();
      }
  }
@@ -927,13 +1017,16 @@ int main() {
          drawIed(); // draw the lunar command module
          drawIss(); // draw the ISS
          drawSpu(); // draw the Sputnik
+         drawPl1(); // draw the Saturn 
          activateIed();
          activateIss();
          activateSpu(); // activate the Sputnik
+         activatePl1(); // activate Saturn
          moveAsteroid();
          moveIed(); // animate the command module
          moveIss(); // animate the ISS
          moveSpu(); // animate the Sputnik
+         movePl1(); // animate the Saturn 
      }
      draw();
      requestAnimationFrame(gameLoop);
@@ -1049,12 +1142,15 @@ int main() {
      activateIed(); // activate the command module 
      activateIss(); // activate the iss
      activateSpu(); // activate the Sputnik
+     activatePl1(); // activate the Sputnik
      drawIed();
      drawIss();
      drawSpu();
+     drawPl1();
      moveIed();
      moveIss();
      moveSpu();
+     movePl1();
  }
 
 
@@ -1071,8 +1167,10 @@ int main() {
  drawIed();
  drawIss();
  drawSpu();
+ drawPl1(); // saturn
  iedActive = true;
  spuActive = true;
+ pl1Active = true;
  gameLoop();
     </script>
 </body>
