@@ -1,0 +1,34 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="black"/>
+
+  <!-- Laika's Body -->
+  <circle cx="100" cy="100" r="40" fill="#8B4513" stroke="black" stroke-width="2"/>
+
+  <!-- Laika's Face -->
+  <circle cx="100" cy="90" r="30" fill="#D2B48C" stroke="black" stroke-width="2"/>
+
+  <!-- Eyes -->
+  <circle cx="85" cy="80" r="5" fill="black"/>
+  <circle cx="115" cy="80" r="5" fill="black"/>
+
+  <!-- Nose -->
+  <circle cx="100" cy="100" r="5" fill="black"/>
+
+  <!-- Ears -->
+  <ellipse cx="70" cy="70" rx="10" ry="15" fill="#8B4513" stroke="black" stroke-width="2"/>
+  <ellipse cx="130" cy="70" rx="10" ry="15" fill="#8B4513" stroke="black" stroke-width="2"/>
+
+  <!-- Space Suit -->
+  <circle cx="100" cy="150" r="45" fill="white" stroke="black" stroke-width="2"/>
+  <circle cx="100" cy="150" r="30" fill="white" stroke="black" stroke-width="2"/>
+
+  <!-- Space Suit Details -->
+  <circle cx="85" cy="165" r="8" fill="#FFD700" stroke="black" stroke-width="2"/>
+  <circle cx="115" cy="165" r="8" fill="#FFD700" stroke="black" stroke-width="2"/>
+
+  <!-- Space Background -->
+  <circle cx="50" cy="50" r="5" fill="white"/>
+  <circle cx="150" cy="30" r="5" fill="white"/>
+  <circle cx="120" cy="120" r="5" fill="white"/>
+</svg>
