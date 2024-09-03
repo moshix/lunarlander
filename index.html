@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.33</div> <!-- version number -->
+        <div>Version: 1.40</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -124,8 +124,9 @@ int main() {
  // v 1.31 Fixed
  // v 1.32 Saturn
  // v 1.33 Sputnik becomes Laica so all spuXXX is Laica now
+ // v 1.40 Game now starts with the lander moving laterally
 
- const versionNumber = "1.33";
+ const versionNumber = "1.40";
 
  // Set up the canvas and drawing context
  const canvas = document.getElementById('gameCanvas');
@@ -328,9 +329,9 @@ int main() {
  const gravity = 0.040; // moon gravity should be 0.05....
  const thrustPower = -0.19; // changed from 0.15
  const lateralThrustPower = 0.10; // Thrust for lateral movement
- const fuelConsumptionRate = 0.37; // 
- const initialFuel = 45; // starting fuel, half the previous amount
- const landerSize = 0.380;
+ const fuelConsumptionRate = 0.27; // 
+ const initialFuel = 60; // starting fuel, half the previous amount
+ const landerSize = 0.450;
  let fuel = initialFuel;
  let landed = false;
  let paused = false;
@@ -357,10 +358,10 @@ int main() {
 
  // Initialize the lander object with properties
  let lander = {
-     x: canvas.width / 2,
+     x: canvas.width / 5,
      y: 200, // Starting at double the previous starting altitude
-     vx: 0,
-     vy: 0,
+     vx: 1.2,
+     vy: -2.0,
      rotation: 0,
      thrusting: false,
      crashed: false // New property to track crash state
@@ -1120,10 +1121,10 @@ function activatePl1() {
      landingMetrics = "";
      paused = false;
      lander = {
-         x: canvas.width / 2,
-         y: 100, // altitude over moon surface
-         vx: 0,
-         vy: 0,
+         x: canvas.width / 6,
+         y: 130, // altitude over moon surface
+         vx: 1.0,
+         vy: -1.1,
          rotation: 0,
          thrusting: false
      };
