@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.40</div> <!-- version number -->
+        <div>Version: 1.41</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -125,8 +125,9 @@ int main() {
  // v 1.32 Saturn
  // v 1.33 Sputnik becomes Laica so all spuXXX is Laica now
  // v 1.40 Game now starts with the lander moving laterally
+ // v 1.41 engine makes no sound if fuel =0
 
- const versionNumber = "1.40";
+ const versionNumber = "1.41";
 
  // Set up the canvas and drawing context
  const canvas = document.getElementById('gameCanvas');
@@ -578,7 +579,7 @@ int main() {
          context.drawImage(landerImg, -landerImg.width / 2, -landerImg.height / 2);
      }
 
-     // Draw the plume more to the left under the lander if thrusting
+     // Draw the plume more if thrusting
      if (lander.thrusting && fuel > 0 && !lander.crashed) {
          const plumeScale = 0.15; // Increased by 50%
          context.save();
@@ -599,6 +600,8 @@ int main() {
          lander.vx += lateralThrustPower * Math.sin(lander.rotation);
          fuel -= fuelConsumptionRate;
      }
+
+
      lander.vy += gravity;
      lander.y += lander.vy;
      lander.x += lander.vx;
@@ -671,6 +674,7 @@ int main() {
          lander.vx = 0;
          lander.vy = 0;
      }
+
 
      // Update UI elements with the latest data
      document.getElementById('horizontal-speed').textContent = lander.vx.toFixed(2);
@@ -1051,7 +1055,7 @@ function activatePl1() {
              case 'ArrowLeft':
              case 'ArrowRight':
                  // Play the rocket sound for 0.3 seconds if not already playing
-                 if (!isRocketSoundPlaying && rocketSoundLoaded && mute) {
+                 if (!isRocketSoundPlaying && fuel > 0 && rocketSoundLoaded && mute) {
                      isRocketSoundPlaying = true;
                      rocketSound.currentTime = 0; // Restart the sound
                      rocketSound.volume = 0.9;
