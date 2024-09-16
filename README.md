@@ -6,7 +6,7 @@ The best Lunar Lander implementation is arguably the one for the DEC GT40 device
 
 However, given the excellent animation capabilities of Javascript, this game is an homage to the tradition of Lunar Landng gaming, especially for something as vintage as MVS 3.8. 
 
-![Lunar Lander on MVS 3.8 ](https://x.com/bmoshix/status/1835650188938985912/photo/1 "lunar lander MVS 3.8")
+![Lunar Lander on MVS 3.8 ](https://x.com/bmoshix/status/1835650188938985912/photo/1)
 
 Play it here: (https://moshix.github.io/lunarlander/)  
 
