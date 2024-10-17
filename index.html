@@ -51,7 +51,7 @@
         <div>Height: <span id="height">0</span></div>
         <div>Fuel: <span id="fuel">50</span></div>
         <div>Fuel Consumption: <span id="fuel-consumption">0</span></div>
-        <div>Version: 1.41</div> <!-- version number -->
+        <div>Version: 1.50</div> <!-- version number -->
         
     </div>
     <div class="legend" id="legend">
@@ -126,8 +126,10 @@ int main() {
  // v 1.33 Sputnik becomes Laica so all spuXXX is Laica now
  // v 1.40 Game now starts with the lander moving laterally
  // v 1.41 engine makes no sound if fuel =0
+ // v 1.50 time based animation 
 
- const versionNumber = "1.41";
+
+ const versionNumber = "1.50";
 
  // Set up the canvas and drawing context
  const canvas = document.getElementById('gameCanvas');
@@ -327,11 +329,18 @@ int main() {
 
 
  // ------------ Define game constants --------------------
- const gravity = 0.023; // moon gravity
- const thrustPower = -0.16; // how powerful the rocket engine is
- const lateralThrustPower = 0.10; // Thrust for lateral movement
- const fuelConsumptionRate = 0.27; // 
- const initialFuel = 75; // starting fuel, half the previous amount
+ let previousTime = 0; // for timer animation
+ let currentTime = Date.now(); // for timer animation for asteroid !
+ let lastTime = Date.now(); // for wall clock time  for asteroid!
+
+let pTime = 0; // for time-based animation for lander!
+let cTime = Date.now(); // for lander!
+
+ const gravity = 0.013; // moon gravity
+ const thrustPower = -0.13; // how powerful the rocket engine is
+ const lateralThrustPower = 0.13; // Thrust for lateral movement
+ const fuelConsumptionRate = 0.17; // 
+ const initialFuel = 85; // starting fuel, half the previous amount
  const landerSize = 0.450;
  let fuel = initialFuel;
  let landed = false;
@@ -434,9 +443,13 @@ int main() {
 
  // Function to move the asteroid
  function moveAsteroid() {
+     currentTime = Date.now();
+     if (!previousTime) previousTime = currentTime;
+     deltaTime = (currentTime - previousTime) / 15;
+     previousTime = currentTime;
      if (asteroid) {
-         asteroid.x += asteroid.vx;
-         asteroid.y += asteroid.vy;
+         asteroid.x += asteroid.vx * deltaTime;
+         asteroid.y += asteroid.vy * deltaTime;
 
          // Check for collision with the lander
          if (!landed &&
@@ -595,16 +608,21 @@ int main() {
 
  // Update the lander's position and velocity
  function updateLander() {
+     cTime = Date.now();
+            if (!pTime) pTime = cTime;
+            dTime = (cTime - pTime) / 13;
+            pTime = cTime;
+
      if (lander.thrusting && fuel > 0) {
-         lander.vy += thrustPower * Math.cos(lander.rotation);
-         lander.vx += lateralThrustPower * Math.sin(lander.rotation);
+         lander.vy += thrustPower * Math.cos(lander.rotation) * dTime;
+         lander.vx += lateralThrustPower * Math.sin(lander.rotation) * dTime;
          fuel -= fuelConsumptionRate;
      }
 
 
      lander.vy += gravity;
-     lander.y += lander.vy;
-     lander.x += lander.vx;
+     lander.y += lander.vy * dTime;
+     lander.x += lander.vx * dTime;
 
      // Ensure the lander stays within canvas bounds
      if (lander.x < 0) lander.x = 0;
